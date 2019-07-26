@@ -100,15 +100,22 @@ brew cask install docker
 echo "installed the latest version of: Docker"
 
 # 5.5. install kubernetes-related tools
-if user_confirms "install kubernetes-cli?"
+if [ -z "$(brew list | grep kubernetes-cli)" ]
 then
-  brew install kubernetes-cli
-  echo "installed kubernetes-cli"
+  if user_confirms "install kubernetes-cli?"
+  then
+    rm /usr/local/bin/kubectl # kubectl by Docker installation; also available as kubectl.docker
+    brew install kubernetes-cli
+    echo "installed kubernetes-cli"
+  fi
 fi
-if user_confirms "install kubernetes-helm?"
+if [ -z "$(brew list | grep kubernetes-helm)" ]
 then
-  brew install kubernetes-helm
-  echo "installed kubernetes-helm"
+  if user_confirms "install kubernetes-helm?"
+  then
+    brew install kubernetes-helm
+    echo "installed kubernetes-helm"
+  fi
 fi
 
 # 6. install SDKs
