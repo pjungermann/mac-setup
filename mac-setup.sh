@@ -110,9 +110,12 @@ brew_install_or_upgrade 'mas' 'Upgrade MAS (Mac App Store CLI)?'
 # 3.3. install python and "pip" (python package manager)
 brew_install_or_upgrade 'python' 'Upgrade Python?'
 
-# 3.4. install "SDK Man" (SDK manager for SKDs like Java, Groovy, Grails, Maven, Gradle, ...)
-curl -s "https://get.sdkman.io" | bash
-echo "installed SDK Man"
+# 3.4. install "SDKMAN!" (SDK manager for SDKs like Java, Groovy, Kotlin, Maven, Gradle, ...)
+if ! zsh -i -c 'which sdk &> /dev/null' || [ ! -d "${user_home}/.sdkman" ]
+then
+  curl -s "https://get.sdkman.io" | bash
+  echo "installed SDKMAN!"
+fi
 
 # 4. install CLI tools
 brew_install_or_upgrade 'coreutils' 'Upgrade coreutils?'
