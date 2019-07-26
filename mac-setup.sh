@@ -63,48 +63,45 @@ echo "installed pip"
 curl -s "https://get.sdkman.io" | bash
 echo "installed SDK Man"
 
-# 4. refresh environment settings
-~/.zshrc
-
-# 5. install CLI tools
+# 4. install CLI tools
 brew install htop
 echo "installed command htop"
 
 brew install tldr
 echo "installed command tldr"
 
-# 6. install fabric
+# 5. install fabric
 if user_confirms "install fabric?"
 then
   pip install fabric
   echo "installed fabric"
 fi
 
-# 7. install SDKs
-sdk install java
-sdk install groovy
-sdk install kotlin
-sdk install maven
-sdk install gradle
+# 6. install SDKs
+zsh -i -c sdk install java
+zsh -i -c sdk install groovy
+zsh -i -c sdk install kotlin
+zsh -i -c sdk install maven
+zsh -i -c sdk install gradle
 echo "installed the latest SDKs for: Java, Groovy, Kotlin, Maven, Gradle"
 
-# 8. install basic software
+# 7. install basic software
 if user_confirms "install Tunnelblick (OpenVPN)?"
 then
   brew cask install tunnelblick
   echo "installed the lastest version of Tunnelblick (VPN)"
 fi
 
-# 9. install container service
+# 8. install container service
 brew cask install docker
 echo "installed the latest version of: Docker"
 
-# 10. install (BE) developer software
+# 9. install (BE) developer software
 brew cask install pgadmin4
 brew cask install intellij-idea
 echo "installed the latest version of: pgAdmin4, IntelliJ IDEA"
 
-# 11. install communication software
+# 10. install communication software
 if user_confirms "install Skype?"
 then
   brew cask install skype
@@ -123,7 +120,7 @@ then
   fi
 fi
 
-# 12. browsers
+# 11. browsers
 user_home="$(cd ~ && pwd)"
 if [ ! -d "${user_home}/Applications/Chrome Apps.localized" ]
 then
