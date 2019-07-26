@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+user_home="$(cd ~ && pwd)"
+
+
 function user_confirms() {
   text=$1
 
@@ -78,14 +81,18 @@ else
 fi
 
 # 2. install "Oh My Zsh" - https://ohmyz.sh
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --unattended"
+if ! which -s zsh || [ ! -d "${user_home}/.oh-my-zsh" ]
+then
+  sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --unattended"
+  echo "installed oh-my-zsh"
+fi 
 # change the default shell to zsh
 current_shell="$(finger $USER | grep Shell | sed -E -e 's/.*Shell: (.*)/\1/g')"
 if [ "${current_shell}" != "/bin/zsh" ]
 then
   chsh -s /bin/zsh
+  echo "changed default shell to zsh"
 fi
-echo "installed oh-my-zsh"
 
 # 3. install package managers
 # 3.1. install "Homebrew" (general Mac OS package manager)
@@ -174,7 +181,6 @@ then
 fi
 
 # 10. browsers
-user_home="$(cd ~ && pwd)"
 if [ ! -d "${user_home}/Applications/Chrome Apps.localized" ]
 then
   if user_confirms "Google Chrome seems not be installed, yet. Do you want to install it?"
