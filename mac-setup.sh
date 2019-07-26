@@ -121,6 +121,8 @@ fi
 brew_install_or_upgrade 'coreutils' 'Upgrade coreutils?'
 brew_install_or_upgrade 'htop'
 brew_install_or_upgrade 'tldr'
+brew_install_or_upgrade 'wifi-password' 'Upgrade wifi-password?' 'Install wifi-password?'
+brew_install_or_upgrade 'speedtest-cli' 'Upgrade speedtest-cli?' 'Install speedtest-cli?'
 
 # 5. infrastructure tools
 # 5.1. install fabric
