@@ -75,11 +75,11 @@ then
 fi
 
 # 6. install SDKs
-zsh -i -c sdk install java
-zsh -i -c sdk install groovy
-zsh -i -c sdk install kotlin
-zsh -i -c sdk install maven
-zsh -i -c sdk install gradle
+zsh -i -c "sdk install java"
+zsh -i -c "sdk install groovy"
+zsh -i -c "sdk install kotlin"
+zsh -i -c "sdk install maven"
+zsh -i -c "sdk install gradle"
 echo "installed the latest SDKs for: Java, Groovy, Kotlin, Maven, Gradle"
 
 # 7. install basic software
