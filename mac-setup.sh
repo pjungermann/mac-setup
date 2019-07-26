@@ -185,6 +185,9 @@ fi
 # 11. Akamai CLI
 brew_install_or_upgrade 'akamai' 'Upgrade Akamai CLI?' 'Install Akamai CLI??'
 
+# 12. Balsamiq Mockup
+brew_cask_install_or_upgrade 'balsamiq-mockups' 'Upgrade Balamiq Mockups?' 'Install Balsamiq Mockups?'
+
 
 echo "finished with the machine setup"
 
