@@ -24,13 +24,15 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 * optional: fabric
 * optional: terraform
 * optional: AWS CLI
+* Docker
+* optional: kubernetes-cli
+* optional: kubernetes-helm
 * Java, latest zulu distribution
 * Groovy
 * Kotlin
 * Maven
 * Gradle
 * optional: Tunnelblick (OpenVPN)
-* Docker
 * pgAdmin4
 * IntelliJ IDEA
 * optional: Skype
