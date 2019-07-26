@@ -53,10 +53,13 @@ echo "installed oh-my-zsh"
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 echo "installed homebrew with commands: 'brew' and 'brew cask'"
 
-# 3.2. install python and "pip" (python package manager)
+# 3.2. install "mas" Mac App Store CLI
+brew install mas
+
+# 3.3. install python and "pip" (python package manager)
 brew install python
 
-# 3.3. install "SDK Man" (SDK manager for SKDs like Java, Groovy, Grails, Maven, Gradle, ...)
+# 3.4. install "SDK Man" (SDK manager for SKDs like Java, Groovy, Grails, Maven, Gradle, ...)
 curl -s "https://get.sdkman.io" | bash
 echo "installed SDK Man"
 
@@ -75,7 +78,8 @@ then
 fi
 
 # 6. install SDKs
-zsh -i -c "sdk install java"
+last_zulu="$(zsh -i -c 'sdk list java | grep zulu | head -n 1 | cut -d "|" -f 6 | sed -e "s# ##g"')"
+zsh -i -c "sdk install java ${last_zulu}"
 zsh -i -c "sdk install groovy"
 zsh -i -c "sdk install kotlin"
 zsh -i -c "sdk install maven"
