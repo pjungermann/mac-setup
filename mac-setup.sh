@@ -39,8 +39,12 @@ fi
 
 # 2. install "Oh My Zsh" - https://ohmyz.sh
 sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --unattended"
-# change the default shell to zsh (needed?)
-chsh -s /bin/zsh
+# change the default shell to zsh
+current_shell="$(finger $USER | grep Shell | sed -E -e 's/.*Shell: (\K.*)/\1/g')"
+if [ "${current_shell}" != "/bin/zsh" ]
+then
+  chsh -s /bin/zsh
+fi
 echo "installed oh-my-zsh"
 
 # 3. install package managers
@@ -48,8 +52,9 @@ echo "installed oh-my-zsh"
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 echo "installed homebrew with commands: 'brew' and 'brew cask'"
 
-# 3.2. install "pip" by python (python package manager)
-brew install python-pip
+# 3.2. install python and "pip" (python package manager)
+brew install python
+sudo easy_install pip
 echo "installed python's pip"
 
 # 3.3. install "SDK Man" (SDK manager for SKDs like Java, Groovy, Grails, Maven, Gradle, ...)
