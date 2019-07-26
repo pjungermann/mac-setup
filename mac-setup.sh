@@ -28,7 +28,7 @@ else
   echo "Xcode Command Line Tools (CLT) not installed, yet"
   xcode-select --install
   echo -n "waiting for Xcode CLT installation to be completed.."
-  while ! xcode-select -p 2> /dev/null
+  while ! xcode-select -p 2>1 /dev/null
   do
      sleep 10 # seconds
      echo -n "."
@@ -38,11 +38,9 @@ else
 fi
 
 # 2. install "Oh My Zsh" - https://ohmyz.sh
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --unattended"
 # change the default shell to zsh (needed?)
 chsh -s /bin/zsh
-# load the config / environment settings of ZSH
-~/.zshrc
 echo "installed oh-my-zsh"
 
 # 3. install package managers
@@ -133,3 +131,5 @@ fi
 
 echo "finished with the machine setup"
 
+# run zsh
+zsh
