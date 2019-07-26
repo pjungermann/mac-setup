@@ -64,6 +64,9 @@ curl -s "https://get.sdkman.io" | bash
 echo "installed SDK Man"
 
 # 4. install CLI tools
+brew install coreutils
+echo "installed coreutils"
+
 brew install htop
 echo "installed command htop"
 
@@ -162,6 +165,13 @@ then
   fi
 else
   echo "Google Chrome is already installed"
+fi
+
+# 11. Akamai CLI
+if user_confirms "install Akamai CLI?"
+then
+  brew install akamai
+  echo "installed Akamai CLI"
 fi
 
 
