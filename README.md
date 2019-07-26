@@ -39,3 +39,4 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 * optional: Slack (App Store)
 * optional: Google Chrome
 * optional: Akamai CLI
+* optional: Balsamiq Mockups
