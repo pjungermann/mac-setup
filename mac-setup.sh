@@ -27,7 +27,7 @@ then
 else
   echo "Xcode Command Line Tools (CLT) not installed, yet"
   xcode-select --install
-  echo -n "waiting for Xcode CLT installation to be completed..
+  echo -n "waiting for Xcode CLT installation to be completed.."
   while ! xcode-select -p 2> /dev/null
   do
      sleep 10 # seconds
