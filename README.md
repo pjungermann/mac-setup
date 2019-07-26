@@ -11,3 +11,28 @@ via wget
 ```
 $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.sh -O -)"
 ```
+
+## Installed Software
+* Xcode Command Line Tools
+* Oh My Zsh
+* Homebrew
+* mas - Mac App Store CLI
+* Python, pip
+* SDKMAN!
+* htop
+* tldr
+* optional: fabric
+* optional: terraform
+* optional: AWS CLI
+* Java, latest zulu distribution
+* Groovy
+* Kotlin
+* Maven
+* Gradle
+* optional: Tunnelblick (OpenVPN)
+* Docker
+* pgAdmin4
+* IntelliJ IDEA
+* optional: Skype
+* optional: Slack (App Store)
+* optional: Google Chrome
