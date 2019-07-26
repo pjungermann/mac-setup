@@ -40,7 +40,7 @@ fi
 # 2. install "Oh My Zsh" - https://ohmyz.sh
 sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --unattended"
 # change the default shell to zsh
-current_shell="$(finger $USER | grep Shell | sed -E -e 's/.*Shell: (\K.*)/\1/g')"
+current_shell="$(finger $USER | grep Shell | sed -E -e 's/.*Shell: (.*)/\1/g')"
 if [ "${current_shell}" != "/bin/zsh" ]
 then
   chsh -s /bin/zsh
