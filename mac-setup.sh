@@ -147,7 +147,7 @@ echo "installed the latest SDKs for: Java, Groovy, Kotlin, Maven, Gradle"
 brew_cask_install_or_upgrade 'tunnelblick' 'Upgrade Tunnelblick (OpenVPN)?' 'Install Tunnelblick (OpenVPN)?'
 
 # 8. install (BE) developer software
-brew_cask_install_or_uprgade 'pgadmin4' 'Upgrade pgAdmin4?'
+brew_cask_install_or_upgrade 'pgadmin4' 'Upgrade pgAdmin4?'
 brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
 
 # 9. install communication software
@@ -185,8 +185,23 @@ fi
 # 11. Akamai CLI
 brew_install_or_upgrade 'akamai' 'Upgrade Akamai CLI?' 'Install Akamai CLI??'
 
-# 12. Balsamiq Mockup
+# 12. Airtame
+brew_cask_install_or_upgrade 'airtame' 'Upgrade Airtame?' 'Install Airtame?'
+
+# 13. Cyberduck
+brew_cask_install_or_upgrade 'cyberduck' 'Upgrade Cyberduck?' 'Install Cyberduck?'
+
+# 14. Balsamiq Mockup
 brew_cask_install_or_upgrade 'balsamiq-mockups' 'Upgrade Balamiq Mockups?' 'Install Balsamiq Mockups?'
+
+# 15. Camunda Modeler
+brew_cask_install_or_upgrade 'camunda-modeler' 'Upgrade Camunda Modeler?' 'Install Camunda Modeler?'
+
+# 16. Zeebe Modeler
+brew_cask_install_or_upgrade 'zeebe-modeler' 'Upgrade Zeebe Modeler?' 'Install Zeebe Modeler?'
+
+# 17. Dropbox
+brew_cask_install_or_upgrade 'dropbox' 'Upgrade Dropbox?' 'Install Dropbox?'
 
 
 echo "finished with the machine setup"
