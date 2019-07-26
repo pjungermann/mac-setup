@@ -92,6 +92,22 @@ then
   echo "installed AWS CLI"
 fi
 
+# 5.4. install container service
+brew cask install docker
+echo "installed the latest version of: Docker"
+
+# 5.5. install kubernetes-related tools
+if user_confirms "install kubernetes-cli?"
+then
+  brew install kubernetes-cli
+  echo "installed kubernetes-cli"
+fi
+if user_confirms "install kubernetes-helm?"
+then
+  brew install kubernetes-helm
+  echo "installed kubernetes-helm"
+fi
+
 # 6. install SDKs
 zsh -i -c 'sdk install java $(sdk list java | grep zulu | head -n 1 | cut -d "|" -f 6 | sed -E -e "s#[^0-9]*(.*zulu).*#\1#g")'
 zsh -i -c 'sdk install groovy'
@@ -107,16 +123,12 @@ then
   echo "installed the lastest version of Tunnelblick (VPN)"
 fi
 
-# 8. install container service
-brew cask install docker
-echo "installed the latest version of: Docker"
-
-# 9. install (BE) developer software
+# 8. install (BE) developer software
 brew cask install pgadmin4
 brew cask install intellij-idea
 echo "installed the latest version of: pgAdmin4, IntelliJ IDEA"
 
-# 10. install communication software
+# 9. install communication software
 if user_confirms "install Skype?"
 then
   brew cask install skype
@@ -140,7 +152,7 @@ then
   fi
 fi
 
-# 11. browsers
+# 10. browsers
 user_home="$(cd ~ && pwd)"
 if [ ! -d "${user_home}/Applications/Chrome Apps.localized" ]
 then
