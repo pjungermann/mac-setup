@@ -34,7 +34,7 @@ else
      echo -n "."
   done
   echo ""
-  echo "installed Xcode Command Line Tools (CLT")
+  echo "installed Xcode Command Line Tools (CLT)"
 fi
 
 # 2. install "Oh My Zsh" - https://ohmyz.sh
