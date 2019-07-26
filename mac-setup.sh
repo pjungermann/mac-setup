@@ -90,9 +90,13 @@ echo "installed oh-my-zsh"
 
 # 3. install package managers
 # 3.1. install "Homebrew" (general Mac OS package manager)
-
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-echo "installed homebrew with commands: 'brew' and 'brew cask'"
+if which -s brew
+then
+  brew update
+else
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  echo "installed Homebrew with commands: 'brew' and 'brew cask'"
+fi
 
 # 3.2. install "mas" Mac App Store CLI
 brew_install_or_upgrade 'mas' 'Upgrade MAS (Mac App Store CLI)?'
