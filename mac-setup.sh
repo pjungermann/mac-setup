@@ -35,8 +35,7 @@ function brew_install_or_upgrade() {
   else
     if [ -z "$prompt_upgrade" ] || user_confirms "$prompt_upgrade"
     then
-      brew upgrade "$formulae"
-      echo "upgraded $formulae"
+      brew upgrade "$formulae" && echo "upgraded $formulae" || echo "not upgraded"
     fi
   fi
 }
