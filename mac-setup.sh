@@ -49,13 +49,15 @@ echo "installed oh-my-zsh"
 
 # 3. install package managers
 # 3.1. install "Homebrew" (general Mac OS package manager)
+
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 echo "installed homebrew with commands: 'brew' and 'brew cask'"
 
 # 3.2. install python and "pip" (python package manager)
 brew install python
+echo "install pip"
 sudo easy_install pip
-echo "installed python's pip"
+echo "installed pip"
 
 # 3.3. install "SDK Man" (SDK manager for SKDs like Java, Groovy, Grails, Maven, Gradle, ...)
 curl -s "https://get.sdkman.io" | bash
