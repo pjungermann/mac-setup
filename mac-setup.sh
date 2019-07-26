@@ -21,8 +21,21 @@ function user_confirms() {
 }
 
 # 1. install xcode Command Line Tools (CLT)
-xcode-select --install
-echo "installed xcode Command Line Tools (CLT)"
+if xcode-select -p 2> /dev/null 
+then
+  echo "Xcode Command Line Tools (CLT) already installed"
+else
+  echo "Xcode Command Line Tools (CLT) not installed, yet"
+  xcode-select --install
+  echo -n "waiting for Xcode CLT installation to be completed..
+  while ! xcode-select -p 2> /dev/null
+  do
+     sleep 10 # seconds
+     echo -n "."
+  done
+  echo ""
+  echo "installed Xcode Command Line Tools (CLT")
+fi
 
 # 2. install "Oh My Zsh" - https://ohmyz.sh
 sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
