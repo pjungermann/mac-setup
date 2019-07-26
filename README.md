@@ -40,3 +40,8 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 * optional: Google Chrome
 * optional: Akamai CLI
 * optional: Balsamiq Mockups
+* optional: Airtame
+* optional: Cyberduck
+* optional: Camunda Modeler
+* optional: Zeebe Modeler
+* optional: Dropbox
