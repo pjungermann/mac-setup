@@ -70,11 +70,26 @@ echo "installed command htop"
 brew install tldr
 echo "installed command tldr"
 
-# 5. install fabric
+# 5. infrastructure tools
+# 5.1. install fabric
 if user_confirms "install fabric?"
 then
   pip3 install fabric
   echo "installed fabric"
+fi
+
+# 5.2. install terraform
+if user_confirms "install terraform?"
+then
+  brew install terraform
+  echo "installed terraform"
+fi
+
+# 5.3. install awscli
+if user_confirms "install AWS CLI?"
+then
+  pip3 install awscli --upgrade --user
+  echo "installed AWS CLI"
 fi
 
 # 6. install SDKs
