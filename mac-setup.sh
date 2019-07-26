@@ -78,12 +78,11 @@ then
 fi
 
 # 6. install SDKs
-last_zulu="$(zsh -i -c 'sdk list java | grep zulu | head -n 1 | cut -d "|" -f 6 | sed -e "s# ##g"')"
-zsh -i -c "sdk install java ${last_zulu}"
-zsh -i -c "sdk install groovy"
-zsh -i -c "sdk install kotlin"
-zsh -i -c "sdk install maven"
-zsh -i -c "sdk install gradle"
+zsh -i -c 'sdk install java $(sdk list java | grep zulu | head -n 1 | cut -d "|" -f 6 | sed -E -e "s#[^0-9]*(.*zulu).*#\1#g")'
+zsh -i -c 'sdk install groovy'
+zsh -i -c 'sdk install kotlin'
+zsh -i -c 'sdk install maven'
+zsh -i -c 'sdk install gradle'
 echo "installed the latest SDKs for: Java, Groovy, Kotlin, Maven, Gradle"
 
 # 7. install basic software
