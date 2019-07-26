@@ -61,6 +61,7 @@ function brew_cask_install_or_upgrade() {
   fi
 }
 
+
 # 1. install xcode Command Line Tools (CLT)
 if xcode-select -p 2> /dev/null 
 then
@@ -68,13 +69,11 @@ then
 else
   echo "Xcode Command Line Tools (CLT) not installed, yet"
   xcode-select --install
-  echo -n "waiting for Xcode CLT installation to be completed.."
   while ! xcode-select -p 2>1 /dev/null
   do
-     sleep 10 # seconds
-     echo -n "."
+    echo -n "Please complete the Xcode Command Line Tools installation. Press ENTER to continue."
+    read any_key
   done
-  echo ""
   echo "installed Xcode Command Line Tools (CLT)"
 fi
 
@@ -209,6 +208,7 @@ brew_cask_install_or_upgrade 'dropbox' 'Upgrade Dropbox?' 'Install Dropbox?'
 
 
 echo "finished with the machine setup"
+
 
 # run zsh
 zsh
