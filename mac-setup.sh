@@ -22,7 +22,7 @@ function user_confirms() {
 
 # 1. install xcode Command Line Tools (CLT)
 xcode-select --install
-echo "installed xcode Command Line Tools (CLT")
+echo "installed xcode Command Line Tools (CLT)"
 
 # 2. install "Oh My Zsh" - https://ohmyz.sh
 sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
