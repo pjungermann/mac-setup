@@ -55,9 +55,6 @@ echo "installed homebrew with commands: 'brew' and 'brew cask'"
 
 # 3.2. install python and "pip" (python package manager)
 brew install python
-echo "install pip"
-sudo easy_install pip
-echo "installed pip"
 
 # 3.3. install "SDK Man" (SDK manager for SKDs like Java, Groovy, Grails, Maven, Gradle, ...)
 curl -s "https://get.sdkman.io" | bash
@@ -73,7 +70,7 @@ echo "installed command tldr"
 # 5. install fabric
 if user_confirms "install fabric?"
 then
-  pip install fabric
+  pip3 install fabric
   echo "installed fabric"
 fi
 
