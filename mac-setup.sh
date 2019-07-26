@@ -127,7 +127,12 @@ then
   slack_id=$(mas search Slack | grep -E -e "\s+\d+\s+Slack" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")
   if [ -n "${slack_id}" ]
   then
-    mas install "${slack_id}"
+    install_status=1
+    while ! mas install "${slack_id}"
+    do
+      echo -n "Please login manually at the Mac App Store. Press ENTER to continue."
+      read any_key
+    done
     # alternative? brew cask install slack
     echo "installed the latest version of Slack"
   else
