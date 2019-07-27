@@ -52,7 +52,7 @@ function brew_cask_install_or_upgrade() {
   then
     if [ -z "$prompt_install" ] || user_confirms "$prompt_install"
     then
-      brew cask install "$formulae"
+      brew cask install --force "$formulae"
       echo "installed $formulae"
     fi
   else
