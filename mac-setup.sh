@@ -64,6 +64,34 @@ function brew_cask_install_or_upgrade() {
   fi
 }
 
+function mas_install() {
+  app=$1
+
+  app_id="$(mas search "$app" | grep -E -e "\s+\d+\s+${app}" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")"
+  if [ -z "${app_id}" ]
+  then
+    echo 'did not find "${app}" at the Mac App Store -- skipped'
+    return
+  fi
+  
+  if [ -n "$(mas list | grep -E "^${app_id} ")" ]
+  then
+    return
+  fi
+  
+  if ! user_confirms "install ${app}?"
+  then
+    return
+  fi
+  
+  while ! mas install "${app_id}"
+  do
+    echo -n "Please login manually at the Mac App Store. Press ENTER to continue."
+    read any_key
+  done
+  echo "installed the latest version of ${app}"
+}
+
 
 # 1. install xcode Command Line Tools (CLT)
 if xcode-select -p 2> /dev/null 
@@ -167,23 +195,7 @@ brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
 
 # 9. install communication software
 brew_cask_install_or_upgrade 'skype' 'Upgrade Skype?' 'Install Skype?'
-if user_confirms "install Slack?"
-then
-  slack_id="$(mas search Slack | grep -E -e "\s+\d+\s+Slack" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")"
-  if [ -n "${slack_id}" ]
-  then
-    install_status=1
-    while ! mas install "${slack_id}"
-    do
-      echo -n "Please login manually at the Mac App Store. Press ENTER to continue."
-      read any_key
-    done
-    # alternative? brew cask install slack
-    echo "installed the latest version of Slack"
-  else
-    echo 'did not find "Slack" at the Mac App Store -- skipped'
-  fi
-fi
+mas_install 'Slack'
 
 # 10. browsers
 if [ ! -d "${user_home}/Applications/Chrome Apps.localized" ]
@@ -218,22 +230,8 @@ brew_cask_install_or_upgrade 'zeebe-modeler' 'Upgrade Zeebe Modeler?' 'Install Z
 brew_cask_install_or_upgrade 'dropbox' 'Upgrade Dropbox?' 'Install Dropbox?'
 
 # 18. Amphetamine
-if user_confirms "install Amphetamine?"
-then
-  amphetamine_id="$(mas search Amphetamine | grep -E -e "\s+\d+\s+Amphetamine" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")"
-  if [ -n "${amphetamine_id}" ]
-  then
-    install_status=1
-    while ! mas install "${amphetamine_id}"
-    do
-      echo -n "Please login manually at the Mac App Store. Press ENTER to continue."
-      read any_key
-    done
-    echo "installed the latest version of Amphetamine"
-  else
-    echo 'did not find "Amphetamine" at the Mac App Store -- skipped'
-  fi
-fi
+mas_install 'Amphetamine'
+
 
 echo "finished with the machine setup"
 
