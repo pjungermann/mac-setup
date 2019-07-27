@@ -169,7 +169,7 @@ brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
 brew_cask_install_or_upgrade 'skype' 'Upgrade Skype?' 'Install Skype?'
 if user_confirms "install Slack?"
 then
-  slack_id=$(mas search Slack | grep -E -e "\s+\d+\s+Slack" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")
+  slack_id="$(mas search Slack | grep -E -e "\s+\d+\s+Slack" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")"
   if [ -n "${slack_id}" ]
   then
     install_status=1
@@ -217,6 +217,23 @@ brew_cask_install_or_upgrade 'zeebe-modeler' 'Upgrade Zeebe Modeler?' 'Install Z
 # 17. Dropbox
 brew_cask_install_or_upgrade 'dropbox' 'Upgrade Dropbox?' 'Install Dropbox?'
 
+# 18. Amphetamine
+if user_confirms "install Amphetamine?"
+then
+  amphetamine_id="$(mas search Amphetamine | grep -E -e "\s+\d+\s+Amphetamine" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")"
+  if [ -n "${amphetamine_id}" ]
+  then
+    install_status=1
+    while ! mas install "${amphetamine_id}"
+    do
+      echo -n "Please login manually at the Mac App Store. Press ENTER to continue."
+      read any_key
+    done
+    echo "installed the latest version of Amphetamine"
+  else
+    echo 'did not find "Amphetamine" at the Mac App Store -- skipped'
+  fi
+fi
 
 echo "finished with the machine setup"
 
