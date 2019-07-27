@@ -175,7 +175,7 @@ brew_cask_install_or_upgrade 'docker' 'Upgrade Docker?'
 echo "installed the latest version of: Docker"
 
 # 5.5. install kubernetes-related tools
-rm /usr/local/bin/kubectl
+rm -f /usr/local/bin/kubectl
 brew_install_or_upgrade 'kubernetes-cli' 'Upgrade kubernetes-cli?'
 brew_install_or_upgrade 'kubernetes-helm' 'Upgrade kubernetes-helm?' 'Install kubernetes-helm?'
 
