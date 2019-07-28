@@ -20,7 +20,7 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 * [Python (incl. pip)](https://www.python.org/) language, runtime, compiler, package manager, ...
 * [SDKMAN!](https://sdkman.io/) - software development kit manager
 * htop - interactive process viewer
-* nmap - Network exploration tool and security / port scanner
+* [nmap](https://nmap.org/) - Network exploration tool and security / port scanner
 * [tldr](https://tldr.sh/) - simplified and community-driven man pages
 * watch - Execute a program periodically, showing output fullscreen
 * _optional:_ [wifi-password](https://github.com/rauchg/wifi-password) - get password of configured WiFis
