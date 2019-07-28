@@ -148,7 +148,9 @@ fi
 # 4. install CLI tools
 brew_install_or_upgrade 'coreutils' 'Upgrade coreutils?'
 brew_install_or_upgrade 'htop'
+brew_install_or_upgrade 'nmap'
 brew_install_or_upgrade 'tldr'
+brew_install_or_upgrade 'watch'
 brew_install_or_upgrade 'wifi-password' 'Upgrade wifi-password?' 'Install wifi-password?'
 brew_install_or_upgrade 'speedtest-cli' 'Upgrade speedtest-cli?' 'Install speedtest-cli?'
 
