@@ -25,6 +25,9 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 * [pip)](https://www.python.org/) - Python package manager
 * [SDKMAN!](https://sdkman.io/) - software development kit manager
 
+### Terminal
+* _optional:_ [iTerm2](https://www.iterm2.com/)
+
 ### General Comands
 * _optional:_ [fabric](https://www.fabfile.org/) - remote shell command execution over SSH
 * htop - interactive process viewer

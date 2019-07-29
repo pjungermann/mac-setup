@@ -200,14 +200,17 @@ brew_cask_install_or_upgrade 'skype-for-business' 'Upgrade Skype for Business?' 
 mas_install 'Slack'
 
 # 9. install developer software
-# 9.1. DB
+# 9.1. Terminal alternatives
+brew_cask_install_or_upgrade 'iterm2' 'Upgrade iTerm2?' 'Install iTerm2?'
+
+# 9.2. DB
 brew_cask_install_or_upgrade 'pgadmin4' 'Upgrade pgAdmin4?'
 
-# 9.2. IDEs etc.
+# 9.3. IDEs etc.
 brew_cask_install_or_upgrade 'jetbrains-toolbox' 'Upgrade Jetbrains Toolbox?'
 brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
 
-# 9.3. APIs
+# 9.4. APIs
 brew_cask_install_or_upgrade 'insomnia' 'Upgrade Insomnia?' 'Install Insomnia?'
 brew_cask_install_or_upgrade 'postman' 'Upgrade Postman?' 'Install Postman?'
 
