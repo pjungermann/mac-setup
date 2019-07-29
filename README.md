@@ -38,9 +38,10 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 ### Infrastructure (as Code) Commands and Software
 * _optional:_ [Akamai CLI](https://github.com/akamai/cli) - CLI for AWS
 * _optional:_ [AWS CLI](https://aws.amazon.com/cli/) - CLI for AWS
-* _optional:_ [kubernetes-cli](https://kubernetes.io/docs/reference/kubectl/overview/) - Kubernetes CLI kubectl
-* _optional:_ [kubernetes-helm](https://helm.sh/) - package manager for Kubernetes
-* _optional:_ [terraform](https://www.terraform.io/) - write, plan, and create Infrastructure as Code
+* _optional:_ [Kubernetes CLI](https://kubernetes.io/docs/reference/kubectl/overview/) - Kubernetes CLI kubectl
+* _optional:_ [Kubernetes' Helm](https://helm.sh/) - package manager for Kubernetes
+* _optional:_ [Kubernetes Minikube](https://kubernetes.io/docs/tutorials/hello-minikube/) - local Kubernetes environment
+* _optional:_ [Terraform](https://www.terraform.io/) - write, plan, and create Infrastructure as Code
 
 ### Containers
 * [Docker](https://hub.docker.com/) - container service

@@ -181,6 +181,7 @@ echo "installed the latest version of: Docker"
 rm -f /usr/local/bin/kubectl
 brew_install_or_upgrade 'kubernetes-cli' 'Upgrade kubernetes-cli?'
 brew_install_or_upgrade 'kubernetes-helm' 'Upgrade kubernetes-helm?' 'Install kubernetes-helm?'
+brew_cask_install_or_upgrade 'minikube' 'Upgrade minikube?' 'Install minikube?'
 
 # 6. install SDKs
 zsh -i -c 'sdk install java $(sdk list java | grep zulu | head -n 1 | cut -d "|" -f 6 | sed -E -e "s#[^0-9]*(.*zulu).*#\1#g")'
