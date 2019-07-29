@@ -106,7 +106,7 @@ function with_brew_cask() {
   fi
 
   ## execute install/upgrade
-  if [[ -z "$(brew list | grep "$formulae")" ]]
+  if [[ -z "$(brew cask list | grep "$formulae")" ]]
   then # not installed, yet
     if ${fcrce_install} || user_confirms "Install $display_name?"
     then
