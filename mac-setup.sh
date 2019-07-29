@@ -15,7 +15,7 @@ function user_confirms() {
 
   answer=""
 
-  if all_yes
+  if ${all_yes}
   then
     answer="y"
   fi
