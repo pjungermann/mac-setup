@@ -22,7 +22,7 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 ### Package Managers
 * [Homebrew](https://brew.sh/) - package manager
 * [mas](https://github.com/mas-cli/mas) - CLI for the Mac App Store
-* [pip)](https://www.python.org/) - Python package manager
+* [pip](https://www.python.org/) - Python package manager
 * [SDKMAN!](https://sdkman.io/) - software development kit manager
 
 ### Terminal
