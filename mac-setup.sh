@@ -209,6 +209,7 @@ brew_cask_install_or_upgrade 'pgadmin4' 'Upgrade pgAdmin4?'
 # 9.3. IDEs etc.
 brew_cask_install_or_upgrade 'jetbrains-toolbox' 'Upgrade Jetbrains Toolbox?'
 brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
+brew_cask_install_or_upgrade 'visual-studio-code' 'Upgrade VS Code?' 'Install VS Code?'
 
 # 9.4. APIs
 brew_cask_install_or_upgrade 'insomnia' 'Upgrade Insomnia?' 'Install Insomnia?'
