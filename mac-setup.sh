@@ -3,11 +3,22 @@ set -e
 
 user_home="$(cd ~ && pwd)"
 
+all_yes=false
+if [[ "$1" = "-y" ]]
+then
+  all_yes=true
+fi
+
 
 function user_confirms() {
   text=$1
 
   answer=""
+
+  if all_yes
+  then
+    answer="y"
+  fi
 
   while [[ "$answer" != "y" ]] && [[ "$answer" != "n" ]]
   do
