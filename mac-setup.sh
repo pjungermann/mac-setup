@@ -9,13 +9,13 @@ function user_confirms() {
 
   answer=""
 
-  while [ "$answer" != "y" ] && [ "$answer" != "n" ]
+  while [[ "$answer" != "y" ]] && [[ "$answer" != "n" ]]
   do
     echo -n "${text} (y/n): "
     read answer
   done
 
-  if [ "$answer" == "y" ]
+  if [[ "$answer" == "y" ]]
   then
     true
   else
@@ -28,15 +28,15 @@ function brew_install_or_upgrade() {
   prompt_upgrade=$2
   prompt_install=$3
   
-  if [ -z "$(brew list | grep "$formulae")" ]
+  if [[ -z "$(brew list | grep "$formulae")" ]]
   then
-    if [ -z "$prompt_install" ] || user_confirms "$prompt_install"
+    if [[ -z "$prompt_install" ]] || user_confirms "$prompt_install"
     then
       brew install "$formulae"
       echo "installed $formulae"
     fi
   else
-    if [ -z "$prompt_upgrade" ] || user_confirms "$prompt_upgrade"
+    if [[ -z "$prompt_upgrade" ]] || user_confirms "$prompt_upgrade"
     then
       brew upgrade "$formulae" && echo "upgraded $formulae" || echo "not upgraded"
     fi
@@ -48,15 +48,15 @@ function brew_cask_install_or_upgrade() {
   prompt_upgrade=$2
   prompt_install=$3
   
-  if [ -z "$(brew list | grep "$formulae")" ]
+  if [[ -z "$(brew list | grep "$formulae")" ]]
   then
-    if [ -z "$prompt_install" ] || user_confirms "$prompt_install"
+    if [[ -z "$prompt_install" ]] || user_confirms "$prompt_install"
     then
       brew cask install --force "$formulae"
       echo "installed $formulae"
     fi
   else
-    if [ -z "$prompt_upgrade" ] || user_confirms "$prompt_upgrade"
+    if [[ -z "$prompt_upgrade" ]] || user_confirms "$prompt_upgrade"
     then
       brew cask upgrade "$formulae"
       echo "upgraded $formulae"
@@ -68,13 +68,13 @@ function mas_install() {
   app=$1
 
   app_id="$(mas search "$app" | grep -E -e "\s+\d+\s+${app}" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")"
-  if [ -z "${app_id}" ]
+  if [[ -z "${app_id}" ]]
   then
     echo 'did not find "${app}" at the Mac App Store -- skipped'
     return
   fi
   
-  if [ -n "$(mas list | grep -E "^${app_id} ")" ]
+  if [[ -n "$(mas list | grep -E "^${app_id} ")" ]]
   then
     return
   fi
@@ -109,14 +109,14 @@ else
 fi
 
 # 2. install "Oh My Zsh" - https://ohmyz.sh
-if ! which -s zsh || [ ! -d "${user_home}/.oh-my-zsh" ]
+if ! which -s zsh || [[ ! -d "${user_home}/.oh-my-zsh" ]]
 then
   sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --unattended"
   echo "installed oh-my-zsh"
 fi 
 # change the default shell to zsh
-current_shell="$(finger $USER | grep Shell | sed -E -e 's/.*Shell: (.*)/\1/g')"
-if [ "${current_shell}" != "/bin/zsh" ]
+current_shell="$(finger "${USER}" | grep Shell | sed -E -e 's/.*Shell: (.*)/\1/g')"
+if [[ "${current_shell}" != "/bin/zsh" ]]
 then
   chsh -s /bin/zsh
   echo "changed default shell to zsh"
@@ -140,7 +140,7 @@ brew_install_or_upgrade 'python' 'Upgrade Python?'
 brew_cask_install_or_upgrade 'miniconda' 'Upgrade miniconda?' 'Install miniconda?'
 
 # 3.4. install "SDKMAN!" (SDK manager for SDKs like Java, Groovy, Kotlin, Maven, Gradle, ...)
-if ! zsh -i -c 'which sdk &> /dev/null' || [ ! -d "${user_home}/.sdkman" ]
+if ! zsh -i -c 'which sdk &> /dev/null' || [[ ! -d "${user_home}/.sdkman" ]]
 then
   curl -s "https://get.sdkman.io" | bash
   echo "installed SDKMAN!"
@@ -218,7 +218,7 @@ brew_cask_install_or_upgrade 'postman' 'Upgrade Postman?' 'Install Postman?'
 
 # 10. browsers
 brew_cask_install_or_upgrade 'firefox' 'Upgrade Firefox?' 'Install Firefox?'
-if [ ! -d "${user_home}/Applications/Chrome Apps.localized" ]
+if [[ ! -d "${user_home}/Applications/Chrome Apps.localized" ]]
 then
   brew_cask_install_or_upgrade 'google-chrome' 'Upgrade Google Chrome?' 'Install Google Chrome?'
 else
@@ -250,7 +250,13 @@ brew_cask_install_or_upgrade 'dropbox' 'Upgrade Dropbox?' 'Install Dropbox?'
 mas_install 'Amphetamine'
 
 # 19. Oh My Zsh - Plugins
-sed -i "" -E -e "s#^plugins=\(.*\)#plugins=(aws colored-man-pages command-not-found docker docker-compose git gradle helm history-substring-search iterm2 kubectl man minikube mvn)#" ~/.zshrc
+zsh_plugins="\
+aws colored-man-pages command-not-found docker docker-compose git gradle helm history-substring-search \
+iterm2 kubectl man minikube mvn"
+sed -i "" \
+    -E \
+    -e "s#^plugins=\(.*\)#plugins=(${zsh_plugins})#" \
+    ~/.zshrc
 
 
 echo "finished with the machine setup"
