@@ -248,6 +248,9 @@ brew_cask_install_or_upgrade 'dropbox' 'Upgrade Dropbox?' 'Install Dropbox?'
 # 18. Amphetamine
 mas_install 'Amphetamine'
 
+# 19. Oh My Zsh - Plugins
+sed -i "" -E -e "s#^plugins=\(.*\)#plugins=(aws colored-man-pages command-not-found docker docker-compose git gradle helm history-substring-search iterm2 kubectl man minikube mvn)#" ~/.zshrc
+
 
 echo "finished with the machine setup"
 

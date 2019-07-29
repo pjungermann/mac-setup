@@ -18,6 +18,7 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 
 ### Shell
 * [Oh My Zsh](https://ohmyz.sh/) - shell
+** activate some standard plugins (see `plugins` in `~/.zshrc` as well as `~/.oh-my-zsh/plugins/`)
 
 ### Package Managers
 * [Homebrew](https://brew.sh/) - package manager
