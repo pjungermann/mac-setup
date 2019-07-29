@@ -195,6 +195,7 @@ brew_cask_install_or_upgrade 'tunnelblick' 'Upgrade Tunnelblick (OpenVPN)?' 'Ins
 
 # 8. install communication software
 brew_cask_install_or_upgrade 'skype' 'Upgrade Skype?' 'Install Skype?'
+brew_cask_install_or_upgrade 'skype-for-business' 'Upgrade Skype for Business?' 'Install Skype for Business?'
 mas_install 'Slack'
 
 # 9. install developer software
