@@ -108,7 +108,7 @@ function with_brew_cask() {
   ## execute install/upgrade
   if [[ -z "$(brew cask list | grep "$formulae")" ]]
   then # not installed, yet
-    if ${fcrce_install} || user_confirms "Install $display_name?"
+    if ${force_install} || user_confirms "Install $display_name?"
     then
       # option "--force" will overwrite manual installed versions
       brew cask install --force "$formulae"
