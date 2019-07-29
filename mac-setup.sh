@@ -108,9 +108,10 @@ function with_brew_cask() {
   ## execute install/upgrade
   if [[ -z "$(brew list | grep "$formulae")" ]]
   then # not installed, yet
-    if ${force_install} || user_confirms "Install $display_name?"
+    if ${fcrce_install} || user_confirms "Install $display_name?"
     then
-      brew cask install "$formulae"
+      # option "--force" will overwrite manual installed versions
+      brew cask install --force "$formulae"
       echo "installed $formulae"
     fi
   else # already installed. Upgrade?
@@ -274,12 +275,7 @@ with_brew_cask 'postman' false false 'Postman'
 
 # 10. browsers
 with_brew_cask 'firefox' false false 'Firefox'
-if [[ ! -d "${user_home}/Applications/Chrome Apps.localized" ]]
-then
-  with_brew_cask 'google-chrome' false false 'Google Chrome'
-else
-  echo "Google Chrome is already installed"
-fi
+with_brew_cask 'google-chrome' false false 'Google Chrome'
 
 # 11. Akamai CLI
 with_brew 'akamai' false false 'Akamai CLI'
