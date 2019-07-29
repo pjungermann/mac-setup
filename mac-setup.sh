@@ -206,12 +206,10 @@ brew_cask_install_or_upgrade 'jetbrains-toolbox' 'Upgrade Jetbrains Toolbox?'
 brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
 
 # 10. browsers
+brew_cask_install_or_upgrade 'firefox' 'Upgrade Firefox?' 'Install Firefox?'
 if [ ! -d "${user_home}/Applications/Chrome Apps.localized" ]
 then
-  if user_confirms "Google Chrome seems not be installed, yet. Do you want to install it?"
-  then
-    brew cask install google-chrome
-  fi
+  brew_cask_install_or_upgrade 'google-chrome' 'Upgrade Google Chrome?' 'Install Google Chrome?'
 else
   echo "Google Chrome is already installed"
 fi

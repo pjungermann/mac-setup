@@ -60,6 +60,7 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 * [JetBrains Toolbox](https://www.jetbrains.com/toolbox/) - manage JetBrains tools, multi-version support, ...
 
 ### Browsers
+* _optional:_ [Firefox](https://www.mozilla.org/firefox/)
 * _optional:_ [Google Chrome](https://www.google.com/chrome/)
 
 ### Secured Connection
