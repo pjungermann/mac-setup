@@ -21,6 +21,7 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
   * activate some standard plugins (see `plugins` in `~/.zshrc` as well as `~/.oh-my-zsh/plugins/`)
 
 ### Package Managers
+* [Conda - Miniconda](https://conda.io/en/latest/) - package manager for any language
 * [Homebrew](https://brew.sh/) - package manager
 * [mas](https://github.com/mas-cli/mas) - CLI for the Mac App Store
 * [pip](https://www.python.org/) - Python package manager

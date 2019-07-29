@@ -135,8 +135,9 @@ fi
 # 3.2. install "mas" Mac App Store CLI
 brew_install_or_upgrade 'mas' 'Upgrade MAS (Mac App Store CLI)?'
 
-# 3.3. install python and "pip" (python package manager)
+# 3.3. install python and "pip" (python package manager), conda
 brew_install_or_upgrade 'python' 'Upgrade Python?'
+brew_cask_install_or_upgrade 'miniconda' 'Upgrade miniconda?' 'Install miniconda?'
 
 # 3.4. install "SDKMAN!" (SDK manager for SDKs like Java, Groovy, Kotlin, Maven, Gradle, ...)
 if ! zsh -i -c 'which sdk &> /dev/null' || [ ! -d "${user_home}/.sdkman" ]
