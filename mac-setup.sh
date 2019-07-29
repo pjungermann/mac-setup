@@ -149,6 +149,7 @@ fi
 brew_install_or_upgrade 'coreutils' 'Upgrade coreutils?'
 brew_install_or_upgrade 'htop'
 brew_install_or_upgrade 'nmap'
+brew_install_or_upgrade 'parallel'
 brew_install_or_upgrade 'tldr'
 brew_install_or_upgrade 'watch'
 brew_install_or_upgrade 'wifi-password' 'Upgrade wifi-password?' 'Install wifi-password?'
@@ -192,13 +193,16 @@ echo "installed the latest SDKs for: Java, Groovy, Kotlin, Maven, Gradle"
 # 7. install basic software
 brew_cask_install_or_upgrade 'tunnelblick' 'Upgrade Tunnelblick (OpenVPN)?' 'Install Tunnelblick (OpenVPN)?'
 
-# 8. install (BE) developer software
-brew_cask_install_or_upgrade 'pgadmin4' 'Upgrade pgAdmin4?'
-brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
-
-# 9. install communication software
+# 8. install communication software
 brew_cask_install_or_upgrade 'skype' 'Upgrade Skype?' 'Install Skype?'
 mas_install 'Slack'
+
+# 9. install developer software
+# 9.1. DB
+brew_cask_install_or_upgrade 'pgadmin4' 'Upgrade pgAdmin4?'
+# 9.2. IDEs etc.
+brew_cask_install_or_upgrade 'jetbrains-toolbox' 'Upgrade Jetbrains Toolbox?'
+brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
 
 # 10. browsers
 if [ ! -d "${user_home}/Applications/Chrome Apps.localized" ]

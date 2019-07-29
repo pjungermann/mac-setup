@@ -21,6 +21,7 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 * [SDKMAN!](https://sdkman.io/) - software development kit manager
 * htop - interactive process viewer
 * [nmap](https://nmap.org/) - Network exploration tool and security / port scanner
+* [parallel](https://www.gnu.org/software/parallel/man.html) - Run commands on multiple CPU cores
 * [tldr](https://tldr.sh/) - simplified and community-driven man pages
 * watch - Execute a program periodically, showing output fullscreen
 * _optional:_ [wifi-password](https://github.com/rauchg/wifi-password) - get password of configured WiFis
@@ -38,6 +39,7 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 * [Gradle](https://gradle.org/) - build, automate, and deliver software; dependency manager
 * _optional:_ [Tunnelblick](https://tunnelblick.net/) - OpenVPN
 * [pgAdmin4](https://www.pgadmin.org/) - PostgreSQL utility
+* [JetBrains Toolbox](https://www.jetbrains.com/toolbox/) - manage JetBrains tools, multi-version support, ...
 * [IntelliJ IDEA](https://www.jetbrains.com/idea/) - IDE
 * _optional:_ [Skype](https://www.skype.com/) - chats, calls
 * _optional:_ [Slack](https://slack.com/) (App Store) - communication and collaboration
