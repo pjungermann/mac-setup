@@ -196,6 +196,8 @@ with_brew 'mas' false 'MAS (Mac App Store CLI)'
 # 3.3. install python and "pip" (python package manager), conda
 with_brew 'python' false
 with_brew_cask 'miniconda' false false
+## conda post-install
+conda init "$(basename "${SHELL}")"
 
 # 3.4. install "SDKMAN!" (SDK manager for SDKs like Java, Groovy, Kotlin, Maven, Gradle, ...)
 if ! zsh -i -c 'which sdk &> /dev/null' || [[ ! -d "${user_home}/.sdkman" ]]
