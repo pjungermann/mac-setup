@@ -64,7 +64,7 @@ $ bash -c "$(wget https://raw.githubusercontent.com/pjungermann/mac-setup/master
 ### IDEs
 * [JetBrains IntelliJ IDEA](https://www.jetbrains.com/idea/)
 * [JetBrains Toolbox](https://www.jetbrains.com/toolbox/) - manage JetBrains tools, multi-version support, ...
-* [Visual Studio Code / VS Code](https://code.visualstudio.com/)
+* _optional:_ [Visual Studio Code / VS Code](https://code.visualstudio.com/)
 
 ### API Development and Testing
 * _optional:_ [Insomnia](https://insomnia.rest/) - API debugging/testing, REST client, GraphQL support

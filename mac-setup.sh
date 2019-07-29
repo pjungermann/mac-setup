@@ -70,7 +70,6 @@ function with_brew() {
       brew upgrade "$formulae" && echo "upgraded $formulae" || echo "not upgraded"
     fi
   fi
-
 }
 
 function with_brew_cask() {
@@ -267,7 +266,7 @@ with_brew_cask 'pgadmin4' false 'pgAdmin4'
 # 9.3. IDEs etc.
 with_brew_cask 'jetbrains-toolbox' false 'Jetbrains Toolbox'
 with_brew_cask 'intellij-idea' false 'IntelliJ IDEA'
-with_brew_cask 'visual-studio-code' false 'VS Code'
+with_brew_cask 'visual-studio-code' false false 'VS Code'
 
 # 9.4. APIs
 with_brew_cask 'insomnia' false false 'Insomnia'
