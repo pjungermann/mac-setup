@@ -201,9 +201,14 @@ mas_install 'Slack'
 # 9. install developer software
 # 9.1. DB
 brew_cask_install_or_upgrade 'pgadmin4' 'Upgrade pgAdmin4?'
+
 # 9.2. IDEs etc.
 brew_cask_install_or_upgrade 'jetbrains-toolbox' 'Upgrade Jetbrains Toolbox?'
 brew_cask_install_or_upgrade 'intellij-idea' 'Upgrade IntelliJ IDEA?'
+
+# 9.3. APIs
+brew_cask_install_or_upgrade 'insomnia' 'Upgrade Insomnia?' 'Install Insomnia?'
+brew_cask_install_or_upgrade 'postman' 'Upgrade Postman?' 'Install Postman?'
 
 # 10. browsers
 brew_cask_install_or_upgrade 'firefox' 'Upgrade Firefox?' 'Install Firefox?'
