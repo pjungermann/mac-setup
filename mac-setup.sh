@@ -314,7 +314,13 @@ with_brew_cask 'dropbox' false false 'Dropbox'
 # 18. Amphetamine
 mas_install 'Amphetamine'
 
-# 19. Oh My Zsh - Plugins
+# 19. Window Management
+with_brew_cask 'spectacle' false false 'Spectacle'
+
+# 20. Music
+with_brew_cask 'spotify' false false 'Spotify'
+
+# 21. Oh My Zsh - Plugins
 zsh_plugins="\
 aws colored-man-pages command-not-found docker docker-compose git gradle helm history-substring-search \
 iterm2 kubectl man minikube mvn"

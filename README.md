@@ -111,3 +111,8 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 
 ### Utilities
 * _optional:_ [Amphetamine](https://apps.apple.com/de/app/amphetamine/id937984704?mt=12) - powerful keep-awake utility
+* _optional:_ [Spectacle](https://www.spectacleapp.com/) - organize windows without using a mouse
+
+### Music
+* _optional:_ [Spotify](https://www.spotify.com/)
+
