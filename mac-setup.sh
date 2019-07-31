@@ -35,7 +35,7 @@ function user_confirms() {
 }
 
 function with_brew() {
-  formulae="$1"
+  formula="$1"
   force_upgrade=true
   force_install=true
   display_name=""
@@ -64,27 +64,27 @@ function with_brew() {
   then
     display_name="$4"
   else
-    display_name="$formulae"
+    display_name="$formula"
   fi
 
   ## execute install/upgrade
-  if [[ -z "$(brew list | grep "$formulae")" ]]
+  if [[ -z "$(brew list | grep "$formula")" ]]
   then # not installed, yet
     if ${force_install} || user_confirms "Install $display_name?"
     then
-      brew install "$formulae"
-      echo "installed $formulae"
+      brew install "$formula"
+      echo "installed $formula"
     fi
   else # already installed. Upgrade?
     if ${force_upgrade} || user_confirms "Upgrade $display_name?"
     then
-      brew upgrade "$formulae" && echo "upgraded $formulae" || echo "not upgraded"
+      brew upgrade "$formula" && echo "upgraded $formula" || echo "not upgraded"
     fi
   fi
 }
 
 function with_brew_cask() {
-  formulae="$1"
+  formula="$1"
   force_upgrade=true
   force_install=true
   display_name=""
@@ -113,22 +113,22 @@ function with_brew_cask() {
   then
     display_name="$4"
   else
-    display_name="$formulae"
+    display_name="$formula"
   fi
 
   ## execute install/upgrade
-  if [[ -z "$(brew cask list | grep "$formulae")" ]]
+  if [[ -z "$(brew cask list | grep "$formula")" ]]
   then # not installed, yet
     if ${force_install} || user_confirms "Install $display_name?"
     then
       # option "--force" will overwrite manual installed versions
-      brew cask install --force "$formulae"
-      echo "installed $formulae"
+      brew cask install --force "$formula"
+      echo "installed $formula"
     fi
   else # already installed. Upgrade?
     if ${force_upgrade} || user_confirms "Upgrade $display_name?"
     then
-      brew cask upgrade "$formulae" && echo "upgraded $formulae" || echo "not upgraded"
+      brew cask upgrade "$formula" && echo "upgraded $formula" || echo "not upgraded"
     fi
   fi
 }
