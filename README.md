@@ -16,12 +16,12 @@ with `-y` (always yes; install and upgrade everything)
 
 via curl
 ```
-$ curl -fsSL https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.sh | bash -s -- -y"
+$ curl -fsSL https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.sh | bash -s -- -y
 ```
 
 via wget
 ```
-$ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.sh -O - | bash -s -- -y"
+$ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.sh -O - | bash -s -- -y
 ```
 
 ## Installed Software
