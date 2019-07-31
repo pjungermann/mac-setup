@@ -34,6 +34,86 @@ function user_confirms() {
   fi
 }
 
+function brew_installed() {
+  formula="$1"
+
+  if [[ -n "$(brew list | grep -E "^${formula}$")" ]]
+  then
+    true
+  else
+    false
+  fi
+}
+
+function brew_cask_installed() {
+  formula="$1"
+
+  if [[ -n "$(brew cask list | grep -E "^${formula}$")" ]]
+  then
+    true
+  else
+    false
+  fi
+}
+
+function brew_current_version() {
+  formula="$1"
+
+  # handle brew and brew cask
+  # cask: redirection error output and filter error message header
+  version="$(
+    brew info "$formula" 2>&1 \
+     | grep -e '/Cellar/' \
+            -e '/Caskroom/' \
+     | sed -E -e 's#.*/([^ ]+).*#\1#'
+  )"
+
+  echo "$version"
+}
+
+function brew_latest_version() {
+  formula="$1"
+
+  # revision info is not available at the non-json output
+  # and current version / version folder uses it as suffix for >0 cases
+  #
+  # revision == 0: {versions.stable}
+  # revision  > 0: {versions.stable}_{revision}
+  brew info --json "$formula" \
+    | jq --raw-output '"\(.[0].versions.stable)\(.[0].revision | if . <= 0 then "" else "_\(.)" end)"'
+}
+
+function is_outdated_brew() {
+  formula="$1"
+
+  # requires jq
+  if ! brew_installed 'jq'
+  then
+    true # maybe. Not really expected though
+  else
+      current="$(brew_current_version "$formula")"
+      latest="$(brew_latest_version "$formula")"
+
+      if [[ "$current" != "$latest" ]]
+      then
+        true
+      else
+        false
+      fi
+  fi
+}
+
+function is_outdated_brew_cask() {
+  formula="$1"
+
+  if [[ -z "$(brew cask outdated | grep -E -e "^${formula} ")" ]]
+  then
+    true
+  else
+    false
+  fi
+}
+
 function with_brew() {
   formula="$1"
   force_upgrade=true
@@ -68,14 +148,15 @@ function with_brew() {
   fi
 
   ## execute install/upgrade
-  if [[ -z "$(brew list | grep "$formula")" ]]
+  if ! brew_installed "$formula"
   then # not installed, yet
     if ${force_install} || user_confirms "Install $display_name?"
     then
       brew install "$formula"
       echo "installed $formula"
     fi
-  else # already installed. Upgrade?
+  elif is_outdated_brew "$formula"
+  then # already installed, but not latest. Upgrade?
     if ${force_upgrade} || user_confirms "Upgrade $display_name?"
     then
       brew upgrade "$formula" && echo "upgraded $formula" || echo "not upgraded"
@@ -117,7 +198,7 @@ function with_brew_cask() {
   fi
 
   ## execute install/upgrade
-  if [[ -z "$(brew cask list | grep "$formula")" ]]
+  if ! brew_cask_installed "$formula"
   then # not installed, yet
     if ${force_install} || user_confirms "Install $display_name?"
     then
@@ -125,7 +206,8 @@ function with_brew_cask() {
       brew cask install --force "$formula"
       echo "installed $formula"
     fi
-  else # already installed. Upgrade?
+  elif is_outdated_brew_cask "$formula"
+  then # already installed, but not latest. Upgrade?
     if ${force_upgrade} || user_confirms "Upgrade $display_name?"
     then
       brew cask upgrade "$formula" && echo "upgraded $formula" || echo "not upgraded"
@@ -200,6 +282,7 @@ else
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   echo "installed Homebrew with commands: 'brew' and 'brew cask'"
 fi
+with_brew 'jq'
 
 # 3.2. install "mas" Mac App Store CLI
 with_brew 'mas' false 'MAS (Mac App Store CLI)'

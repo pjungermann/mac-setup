@@ -44,7 +44,8 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 
 ### General Comands
 * _optional:_ [fabric](https://www.fabfile.org/) - remote shell command execution over SSH
-* htop - interactive process viewer
+* [htop](https://hisham.hm/htop/) - interactive process viewer
+* [jq](https://stedolan.github.io/jq) - A lightweight and flexible command-line JSON processor.
 * [nmap](https://nmap.org/) - Network exploration tool and security / port scanner
 * [parallel](https://www.gnu.org/software/parallel/man.html) - Run commands on multiple CPU cores
 * _optional:_ [speedtest-cli](https://github.com/sivel/speedtest-cli) - CLI for testing internet bandwidth using speedtest.net
