@@ -106,7 +106,9 @@ function is_outdated_brew() {
 function is_outdated_brew_cask() {
   formula="$1"
 
-  if [[ -n "$(brew cask outdated | grep -E -e "^${formula} ")" ]]
+  # --greedy: includes casks with version "latest" and "auto-update: true"
+  # --quiet : suppress version information; only show the formula
+  if [[ -n "$(brew cask outdated --greedy --quiet | grep -E -e "^${formula}$")" ]]
   then
     true
   else
