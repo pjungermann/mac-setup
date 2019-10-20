@@ -288,6 +288,7 @@ with_brew 'jq'
 
 # 3.2. install "mas" Mac App Store CLI
 with_brew 'mas' false 'MAS (Mac App Store CLI)'
+mas upgrade
 
 # 3.3. install python and "pip" (python package manager), conda
 with_brew 'python' false
