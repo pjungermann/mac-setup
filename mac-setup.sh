@@ -2,6 +2,7 @@
 set -e
 
 user_home="$(cd ~ && pwd)"
+zshrc_file="${user_home}/.zshrc"
 
 all_yes=false
 if [[ "$1" = "-y" ]]
@@ -296,8 +297,12 @@ with_brew_cask 'miniconda' false false
 conda init "$(basename "${SHELL}")"
 # 3.3.2. latest python
 with_brew 'python' false
-## make make unversioned commands point to the latest
-echo 'export PATH="/usr/local/opt/python/libexec/bin:${PATH}"' >> "${user_home}/.zshrc"
+## make unversioned commands point to the latest
+zshrc_append='export PATH="/usr/local/opt/python/libexec/bin:${PATH}"'
+if [ -z "$(grep "${zshrc_append}" "${zshrc_file}")" ]
+then
+  echo "${zshrc_append}" >> "${zshrc_file}"
+fi
 export PATH="/usr/local/opt/python/libexec/bin:${PATH}"
 
 # 3.4. install "SDKMAN!" (SDK manager for SDKs like Java, Groovy, Kotlin, Maven, Gradle, ...)
