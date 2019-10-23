@@ -291,10 +291,13 @@ with_brew 'mas' false 'MAS (Mac App Store CLI)'
 mas upgrade
 
 # 3.3. install python and "pip" (python package manager), conda
-with_brew 'python' false
+# 3.3.1. (mini)conda (with own python and pip)
 with_brew_cask 'miniconda' false false
-## conda post-install
 conda init "$(basename "${SHELL}")"
+# 3.3.2. latest python
+with_brew 'python' false
+## make make unversioned commands point to the latest
+export PATH="/usr/local/opt/python/libexec/bin:${PATH}"
 
 # 3.4. install "SDKMAN!" (SDK manager for SDKs like Java, Groovy, Kotlin, Maven, Gradle, ...)
 if ! zsh -i -c 'which sdk &> /dev/null' || [[ ! -d "${user_home}/.sdkman" ]]
@@ -317,7 +320,7 @@ with_brew 'speedtest-cli' false false
 # 5.1. install fabric
 if user_confirms "Install fabric?"
 then
-  pip3 install fabric
+  pip install fabric
   echo "installed fabric"
 fi
 
@@ -327,7 +330,7 @@ with_brew 'terraform' false false
 # 5.3. install awscli
 if user_confirms "install AWS CLI?"
 then
-  pip3 install awscli --upgrade --user
+  pip install awscli --upgrade --user
   echo "installed AWS CLI"
 fi
 
