@@ -326,7 +326,7 @@ with_brew 'speedtest-cli' false false
 # 5.1. install fabric
 if user_confirms "Install fabric?"
 then
-  pip install fabric
+  pip install fabric --upgrade
   echo "installed fabric"
 fi
 
@@ -336,7 +336,7 @@ with_brew 'terraform' false false
 # 5.3. install awscli
 if user_confirms "install AWS CLI?"
 then
-  pip install awscli --upgrade --user
+  pip install awscli --upgrade
   echo "installed AWS CLI"
 fi
 
