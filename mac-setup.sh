@@ -310,6 +310,8 @@ if ! zsh -i -c 'which sdk &> /dev/null' || [[ ! -d "${user_home}/.sdkman" ]]
 then
   curl -s "https://get.sdkman.io" | bash
   echo "installed SDKMAN!"
+else
+  zsh -i -c 'sdk update'
 fi
 
 # 4. install CLI tools
