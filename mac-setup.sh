@@ -298,6 +298,7 @@ conda init "$(basename "${SHELL}")"
 with_brew 'python' false
 ## make make unversioned commands point to the latest
 echo 'export PATH="/usr/local/opt/python/libexec/bin:${PATH}"' >> "${user_home}/.zshrc"
+export PATH="/usr/local/opt/python/libexec/bin:${PATH}"
 
 # 3.4. install "SDKMAN!" (SDK manager for SDKs like Java, Groovy, Kotlin, Maven, Gradle, ...)
 if ! zsh -i -c 'which sdk &> /dev/null' || [[ ! -d "${user_home}/.sdkman" ]]
