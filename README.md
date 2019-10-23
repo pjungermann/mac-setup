@@ -54,7 +54,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * _optional:_ [wifi-password](https://github.com/rauchg/wifi-password) - get password of configured WiFis
 
 ### Infrastructure (as Code) Commands and Software
-* _optional:_ [Akamai CLI](https://github.com/akamai/cli) - CLI for AWS
+* _optional:_ [Akamai CLI](https://github.com/akamai/cli) - CLI for Akamai
 * _optional:_ [AWS CLI](https://aws.amazon.com/cli/) - CLI for AWS
 * _optional:_ [Kubernetes CLI](https://kubernetes.io/docs/reference/kubectl/overview/) - Kubernetes CLI kubectl
 * _optional:_ [Kubernetes' Helm](https://helm.sh/) - package manager for Kubernetes
