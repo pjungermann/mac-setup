@@ -364,7 +364,6 @@ with_brew_cask 'tunnelblick' false false 'Tunnelblick (OpenVPN)'
 
 # 8. install communication software
 with_brew_cask 'skype' false false 'Skype'
-with_brew_cask 'skype-for-business' false false 'Skype for Business'
 mas_install 'Slack'
 
 # 9. install developer software
