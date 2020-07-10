@@ -320,6 +320,7 @@ with_brew 'coreutils' false
 with_brew 'htop'
 with_brew 'nmap'
 with_brew 'parallel'
+with_brew 'sops'
 with_brew 'speedtest-cli' false false
 with_brew 'tldr'
 with_brew 'watch'

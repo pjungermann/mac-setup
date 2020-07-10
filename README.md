@@ -90,8 +90,10 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * _optional:_ [Firefox](https://www.mozilla.org/firefox/)
 * _optional:_ [Google Chrome](https://www.google.com/chrome/)
 
-### Secured Connection
+### Security
 * _optional:_ [Tunnelblick](https://tunnelblick.net/) - OpenVPN client
+* [SOPS](https://github.com/mozilla/sops) - sops is an editor of encrypted files that supports YAML, JSON, ENV, INI and BINARY formats 
+  and encrypts with AWS KMS, GCP KMS, Azure Key Vault and PGP.
 
 ### Communication, Presentation
 * _optional:_ [Airtame](https://airtame.com/) - wireless screen sharing
