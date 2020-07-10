@@ -316,13 +316,14 @@ fi
 
 # 4. install CLI tools
 with_brew 'bfg'
+with_brew 'cheat' true false
 with_brew 'coreutils' false
 with_brew 'htop'
 with_brew 'nmap'
 with_brew 'parallel'
 with_brew 'sops'
 with_brew 'speedtest-cli' false false
-with_brew 'tldr'
+with_brew 'tldr' true false
 with_brew 'watch'
 with_brew 'wifi-password' false failse
 with_brew 'yq'

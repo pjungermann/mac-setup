@@ -44,6 +44,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 
 ### General Comands
 * [bfg](https://rtyley.github.io/bfg-repo-cleaner/) - Clean data out of your Git repository history (e.g. remove big files or password).
+* _optional:_ [cheat](https://github.com/cheat/cheat) - cheatsheets at the command-line for \*nix commands (similar: *tldr*; [collaboration issue](https://github.com/tldr-pages/tldr/issues/266))
 * coretuils - Provides GNU-compatible commands (all prefixed with "g" like "gfind").
 * _optional:_ [fabric](https://www.fabfile.org/) - remote shell command execution over SSH
 * [htop](https://hisham.hm/htop/) - interactive process viewer
@@ -51,7 +52,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * [nmap](https://nmap.org/) - Network exploration tool and security / port scanner
 * [parallel](https://www.gnu.org/software/parallel/man.html) - Run commands on multiple CPU cores
 * _optional:_ [speedtest-cli](https://github.com/sivel/speedtest-cli) - CLI for testing internet bandwidth using speedtest.net
-* [tldr](https://tldr.sh/) - simplified and community-driven man pages
+* _optional:_ [tldr](https://tldr.sh/) - simplified and community-driven man pages (similar: *cheat*; [collaboration issue](https://github.com/tldr-pages/tldr/issues/266))
 * watch - Execute a program periodically, showing output fullscreen
 * _optional:_ [wifi-password](https://github.com/rauchg/wifi-password) - get password of configured WiFis
 * [yq](https://github.com/mikefarah/yq) - A portable command-line YAML processor.
