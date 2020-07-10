@@ -66,6 +66,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 
 ### Containers
 * [Docker](https://hub.docker.com/) - container service
+* [container-diff](https://github.com/GoogleContainerTools/container-diff) - Diff your Docker container images.
 
 ### SDKs, Programming Language Support
 * [Groovy](https://groovy-lang.org/) language, compiler, runtime, ...

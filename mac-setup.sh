@@ -347,6 +347,7 @@ fi
 
 # 5.4. install container service
 with_brew_cask 'docker' false
+with_brew 'container-diff'
 
 # 5.5. install kubernetes-related tools
 rm -f /usr/local/bin/kubectl
