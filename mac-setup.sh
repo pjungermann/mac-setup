@@ -315,17 +315,19 @@ else
 fi
 
 # 4. install CLI tools
+with_brew 'bfg'
 with_brew 'coreutils' false
 with_brew 'htop'
 with_brew 'nmap'
 with_brew 'parallel'
+with_brew 'speedtest-cli' false false
 with_brew 'tldr'
 with_brew 'watch'
-with_brew 'wifi-password' false false
-with_brew 'speedtest-cli' false false
+with_brew 'wifi-password' false failse
+with_brew 'yq'
 
 # 5. infrastructure tools
-# 5.1. install fabric
+# 5.1. install fabric  TODO: drop?
 if user_confirms "Install fabric?"
 then
   pip install fabric --upgrade
@@ -363,7 +365,7 @@ echo "installed the latest SDKs for: Java, Groovy, Kotlin, Maven, Gradle"
 with_brew_cask 'tunnelblick' false false 'Tunnelblick (OpenVPN)'
 
 # 8. install communication software
-with_brew_cask 'skype' false false 'Skype'
+with_brew_cask 'skype' false false 'Skype'  # TODO: drop?
 mas_install 'Slack'
 
 # 9. install developer software

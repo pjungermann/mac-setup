@@ -43,6 +43,8 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * _optional:_ [iTerm2](https://www.iterm2.com/)
 
 ### General Comands
+* [bfg](https://rtyley.github.io/bfg-repo-cleaner/) - Clean data out of your Git repository history (e.g. remove big files or password).
+* coretuils - Provides GNU-compatible commands (all prefixed with "g" like "gfind").
 * _optional:_ [fabric](https://www.fabfile.org/) - remote shell command execution over SSH
 * [htop](https://hisham.hm/htop/) - interactive process viewer
 * [jq](https://stedolan.github.io/jq) - A lightweight and flexible command-line JSON processor.
@@ -52,6 +54,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * [tldr](https://tldr.sh/) - simplified and community-driven man pages
 * watch - Execute a program periodically, showing output fullscreen
 * _optional:_ [wifi-password](https://github.com/rauchg/wifi-password) - get password of configured WiFis
+* [yq](https://github.com/mikefarah/yq) - A portable command-line YAML processor.
 
 ### Infrastructure (as Code) Commands and Software
 * _optional:_ [Akamai CLI](https://github.com/akamai/cli) - CLI for Akamai
