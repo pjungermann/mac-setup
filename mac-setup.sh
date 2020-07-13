@@ -308,7 +308,7 @@ with_brew 'sops'
 with_brew 'speedtest-cli' false false
 with_brew 'tldr' true false
 with_brew 'watch'
-with_brew 'wifi-password' false failse
+with_brew 'wifi-password' false false
 with_brew 'yq'
 
 # 4.1. custom command "help" (if there is none yet) which runs tldr+cheat
