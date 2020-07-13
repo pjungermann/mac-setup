@@ -24,7 +24,7 @@ function user_confirms() {
   while [[ "$answer" != "y" ]] && [[ "$answer" != "n" ]]
   do
     echo -n "${text} (y/n): "
-    read answer
+    read -n 1 answer
   done
 
   if [[ "$answer" == "y" ]]
@@ -240,8 +240,10 @@ function mas_install() {
   
   while ! mas install "${app_id}"
   do
-    echo -n "Please login manually at the Mac App Store. Press ENTER to continue."
-    read any_key
+    read -p "Please login manually at the Mac App Store. Press any key to continue." \
+         -n 1 \
+         -s
+    echo
   done
   echo "installed the latest version of ${app}"
 }
@@ -256,8 +258,10 @@ else
   xcode-select --install
   while ! xcode-select -p 2>1 /dev/null
   do
-    echo -n "Please complete the Xcode Command Line Tools installation. Press ENTER to continue."
-    read any_key
+    read -p "Please complete the Xcode Command Line Tools installation. Press any key to continue." \
+         -n 1 \
+         -s
+    echo
   done
   echo "installed Xcode Command Line Tools (CLT)"
 fi
