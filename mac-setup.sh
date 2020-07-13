@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 user_home="$(cd ~ && pwd)"
@@ -327,6 +327,22 @@ with_brew 'tldr' true false
 with_brew 'watch'
 with_brew 'wifi-password' false failse
 with_brew 'yq'
+
+# 4.1. custom command "help" (if there is none yet) which runs tldr+cheat
+help_command='/usr/local/bin/help'
+if which tldr > /dev/null && which cheat > /dev/null && [ ! -f "${help_command}" ]
+then
+  cat << "DOC" > "${help_command}"
+#!/usr/bin/env bash
+
+tldr ${@}
+echo
+cheat ${@}
+DOC
+  chmod +x "${help_command}"
+  echo 'meta-command "help {command}" was added using both "tldr" and "cheat"'
+fi
+
 
 # 5. infrastructure tools
 # 5.1. install fabric  TODO: drop?

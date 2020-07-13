@@ -47,6 +47,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * _optional:_ [cheat](https://github.com/cheat/cheat) - cheatsheets at the command-line for \*nix commands (similar: _tldr_; [collaboration issue](https://github.com/tldr-pages/tldr/issues/266))
 * coretuils - Provides GNU-compatible commands (all prefixed with "g" like "gfind").
 * _optional:_ [fabric](https://www.fabfile.org/) - remote shell command execution over SSH
+* help: custom meta-command executing both "tldr" and "cheat" (`help {command}`)
 * [htop](https://hisham.hm/htop/) - interactive process viewer
 * [jq](https://stedolan.github.io/jq) - A lightweight and flexible command-line JSON processor.
 * [nmap](https://nmap.org/) - Network exploration tool and security / port scanner
