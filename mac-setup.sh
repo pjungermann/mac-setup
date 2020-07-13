@@ -11,7 +11,7 @@ then
 fi
 
 
-function user_confirms() {
+user_confirms () {
   text=$1
 
   answer=""
@@ -23,41 +23,26 @@ function user_confirms() {
 
   while [[ "$answer" != "y" ]] && [[ "$answer" != "n" ]]
   do
-    echo -n "${text} (y/n): "
-    read -n 1 answer
+    read -r -p "${text} (y/n): " -n 1 answer
+    echo
   done
 
-  if [[ "$answer" == "y" ]]
-  then
-    true
-  else
-    false
-  fi
+  [[ "$answer" == "y" ]]
 }
 
-function brew_installed() {
+brew_installed () {
   formula="$1"
 
-  if [[ -n "$(brew list | grep -E "^${formula}$")" ]]
-  then
-    true
-  else
-    false
-  fi
+  brew list | grep -q -E "^${formula}$"
 }
 
-function brew_cask_installed() {
+brew_cask_installed () {
   formula="$1"
 
-  if [[ -n "$(brew cask list | grep -E "^${formula}$")" ]]
-  then
-    true
-  else
-    false
-  fi
+  brew cask list | grep -q -E "^${formula}$"
 }
 
-function brew_current_version() {
+brew_current_version () {
   formula="$1"
 
   # handle brew and brew cask
@@ -72,7 +57,7 @@ function brew_current_version() {
   echo "$version"
 }
 
-function brew_latest_version() {
+brew_latest_version () {
   formula="$1"
 
   # revision info is not available at the non-json output
@@ -84,40 +69,30 @@ function brew_latest_version() {
     | jq --raw-output '"\(.[0].versions.stable)\(.[0].revision | if . <= 0 then "" else "_\(.)" end)"'
 }
 
-function is_outdated_brew() {
+is_outdated_brew () {
   formula="$1"
 
   # requires jq
   if ! brew_installed 'jq'
   then
-    true # maybe. Not really expected though
-  else
-      current="$(brew_current_version "$formula")"
-      latest="$(brew_latest_version "$formula")"
-
-      if [[ "$current" != "$latest" ]]
-      then
-        true
-      else
-        false
-      fi
+    return # maybe. Not really expected though
   fi
+
+  current="$(brew_current_version "$formula")"
+  latest="$(brew_latest_version "$formula")"
+
+  [[ "$current" != "$latest" ]]
 }
 
-function is_outdated_brew_cask() {
+is_outdated_brew_cask () {
   formula="$1"
 
   # --greedy: includes casks with version "latest" and "auto-update: true"
   # --quiet : suppress version information; only show the formula
-  if [[ -n "$(brew cask outdated --greedy --quiet | grep -E -e "^${formula}$")" ]]
-  then
-    true
-  else
-    false
-  fi
+  brew cask outdated --greedy --quiet | grep -q -E -e "^${formula}$"
 }
 
-function with_brew() {
+with_brew () {
   formula="$1"
   force_upgrade=true
   force_install=true
@@ -167,7 +142,7 @@ function with_brew() {
   fi
 }
 
-function with_brew_cask() {
+with_brew_cask () {
   formula="$1"
   force_upgrade=true
   force_install=true
@@ -218,17 +193,17 @@ function with_brew_cask() {
   fi
 }
 
-function mas_install() {
+mas_install () {
   app=$1
 
   app_id="$(mas search "$app" | grep -E -e "\s+\d+\s+${app}" | sed -E -e "s/[^0-9]*([0-9]+).*/\1/g")"
   if [[ -z "${app_id}" ]]
   then
-    echo 'did not find "${app}" at the Mac App Store -- skipped'
+    echo "did not find \"${app}\" at the Mac App Store -- skipped"
     return
   fi
   
-  if [[ -n "$(mas list | grep -E "^${app_id} ")" ]]
+  if mas list | grep -q -E "^${app_id} "
   then
     return
   fi
@@ -240,9 +215,9 @@ function mas_install() {
   
   while ! mas install "${app_id}"
   do
-    read -p "Please login manually at the Mac App Store. Press any key to continue." \
-         -n 1 \
-         -s
+    read -rs \
+         -p "Please login manually at the Mac App Store. Press any key to continue." \
+         -n 1
     echo
   done
   echo "installed the latest version of ${app}"
@@ -256,17 +231,18 @@ then
 else
   echo "Xcode Command Line Tools (CLT) not installed, yet"
   xcode-select --install
-  while ! xcode-select -p 2>1 /dev/null
+  while ! xcode-select -p 2>&1 /dev/null
   do
-    read -p "Please complete the Xcode Command Line Tools installation. Press any key to continue." \
-         -n 1 \
-         -s
+    read -rs \
+         -p "Please complete the Xcode Command Line Tools installation. Press any key to continue." \
+         -n 1
     echo
   done
   echo "installed Xcode Command Line Tools (CLT)"
 fi
 
 # 2. install "Oh My Zsh" - https://ohmyz.sh
+# shellcheck disable=SC2230
 if ! which -s zsh || [[ ! -d "${user_home}/.oh-my-zsh" ]]
 then
   sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --unattended"
@@ -282,6 +258,7 @@ fi
 
 # 3. install package managers
 # 3.1. install "Homebrew" (general Mac OS package manager)
+# shellcheck disable=SC2230
 if which -s brew
 then
   brew update
@@ -302,8 +279,10 @@ conda init "$(basename "${SHELL}")"
 # 3.3.2. latest python
 with_brew 'python' false
 ## make unversioned commands point to the latest
+# shellcheck disable=SC2016
 zshrc_append='export PATH="/usr/local/opt/python/libexec/bin:${PATH}"'
-if [ -z "$(grep "${zshrc_append}" "${zshrc_file}")" ]
+# shellcheck disable=SC2143
+if ! grep "${zshrc_append}" "${zshrc_file}"
 then
   echo "${zshrc_append}" >> "${zshrc_file}"
 fi
@@ -334,6 +313,7 @@ with_brew 'yq'
 
 # 4.1. custom command "help" (if there is none yet) which runs tldr+cheat
 help_command='/usr/local/bin/help'
+# shellcheck disable=SC2230
 if which tldr > /dev/null && which cheat > /dev/null && [ ! -f "${help_command}" ]
 then
   cat << "DOC" > "${help_command}"
