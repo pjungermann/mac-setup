@@ -314,7 +314,7 @@ with_brew 'yq'
 # 4.1. custom command "help" (if there is none yet) which runs tldr+cheat
 help_command='/usr/local/bin/help'
 # shellcheck disable=SC2230
-if which tldr > /dev/null && which cheat > /dev/null && [ ! -f "${help_command}" ]
+if which tldr > /dev/null && which cheat > /dev/null && ! which help > /dev/null && [ ! -f "${help_command}" ]
 then
   cat << "DOC" > "${help_command}"
 #!/usr/bin/env bash
