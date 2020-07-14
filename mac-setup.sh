@@ -245,7 +245,7 @@ fi
 # shellcheck disable=SC2230
 if ! which -s zsh || [[ ! -d "${user_home}/.oh-my-zsh" ]]
 then
-  sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh) --unattended"
+  sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended"
   echo "installed oh-my-zsh"
 fi 
 # change the default shell to zsh
