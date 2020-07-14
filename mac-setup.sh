@@ -263,7 +263,7 @@ if which -s brew
 then
   brew update
 else
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
   echo "installed Homebrew with commands: 'brew' and 'brew cask'"
 fi
 with_brew 'jq'
