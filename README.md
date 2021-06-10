@@ -62,6 +62,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * _optional:_ [Akamai CLI](https://github.com/akamai/cli) - CLI for Akamai
 * _optional:_ [AWS CLI](https://aws.amazon.com/cli/) - CLI for AWS
 * _optional:_ [Kubernetes CLI](https://kubernetes.io/docs/reference/kubectl/overview/) - Kubernetes CLI kubectl
+* _optional:_ [kubectx](https://github.com/ahmetb/kubectx) - allows switching between kubectl contexts easily
 * _optional:_ [Helm](https://helm.sh/) - package manager for Kubernetes
 * _optional:_ [Kubernetes Minikube](https://kubernetes.io/docs/tutorials/hello-minikube/) - local Kubernetes environment
 * _optional:_ [Terraform](https://www.terraform.io/) - write, plan, and create Infrastructure as Code
