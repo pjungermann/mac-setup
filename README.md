@@ -85,8 +85,8 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * [Maven](https://maven.apache.org/) - Java/JVM software project management and comprehension tool, dependency manager
 
 ### IDEs
-* [JetBrains IntelliJ IDEA](https://www.jetbrains.com/idea/)
 * [JetBrains Toolbox](https://www.jetbrains.com/toolbox/) - manage JetBrains tools, multi-version support, ...
+  * [JetBrains IntelliJ IDEA](https://www.jetbrains.com/idea/) can be installed using the Toolbox
 * _optional:_ [Visual Studio Code / VS Code](https://code.visualstudio.com/)
 
 ### API Development and Testing

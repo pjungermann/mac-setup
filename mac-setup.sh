@@ -310,7 +310,6 @@ with_brew 'pgadmin4' false 'pgAdmin4'
 
 # 9.3. IDEs etc.
 with_brew 'jetbrains-toolbox' false 'Jetbrains Toolbox'
-with_brew 'intellij-idea' false 'IntelliJ IDEA'
 with_brew 'visual-studio-code' false false 'VS Code'
 
 # 9.4. APIs
