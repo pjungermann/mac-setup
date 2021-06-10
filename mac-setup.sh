@@ -247,8 +247,10 @@ then
   echo "installed fabric"
 fi
 
-# 5.2. install terraform
-with_brew 'terraform' false false
+# 5.2. install tfswitch to manage terraform versions
+with_brew 'tfswitch' false false
+# 5.2.1 preinstall the latest terraform version
+tfswitch --latest
 
 # 5.3. install awscli
 if user_confirms "install AWS CLI?"

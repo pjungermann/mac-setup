@@ -65,7 +65,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * _optional:_ [kubectx](https://github.com/ahmetb/kubectx) - allows switching between kubectl contexts easily
 * _optional:_ [Helm](https://helm.sh/) - package manager for Kubernetes
 * _optional:_ [Kubernetes Minikube](https://kubernetes.io/docs/tutorials/hello-minikube/) - local Kubernetes environment
-* _optional:_ [Terraform](https://www.terraform.io/) - write, plan, and create Infrastructure as Code
+* _optional:_ [tfswitch](https://warrensbox.github.io/terraform-switcher) - allows switching between [Terraform](https://www.terraform.io/) versions (used to write, plan, and create Infrastructure as Code)
 
 ### Containers
 * [Docker](https://hub.docker.com/) - container service
