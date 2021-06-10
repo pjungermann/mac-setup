@@ -213,6 +213,9 @@ with_brew 'nvm'
 # 3.5.1 install latest LTS node version
 nvm install --lts --no-progress
 
+# 3.6. install Yarn JS package manager
+with_brew 'yarn'
+
 # 4. install CLI tools
 with_brew 'bfg'
 with_brew 'cheat' true false

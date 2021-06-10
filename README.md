@@ -39,6 +39,7 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 * [pip](https://www.python.org/) - Python package manager
 * [SDKMAN!](https://sdkman.io/) - software development kit manager
 * [NVM](https://github.com/nvm-sh/nvm) - Node Version Manager
+* [Yarn](https://yarnpkg.com/) - JavaScript Package Manager
 
 ### Terminal
 * _optional:_ [iTerm2](https://www.iterm2.com/)
