@@ -210,6 +210,8 @@ fi
 
 # 3.5. install NVM to manage node versions
 with_brew 'nvm'
+export NVM_DIR="$HOME/.nvm"
+source "$(brew --prefix nvm)/nvm.sh"
 # 3.5.1 install latest LTS node version
 nvm install --lts --no-progress
 
