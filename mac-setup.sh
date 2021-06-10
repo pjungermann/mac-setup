@@ -210,6 +210,8 @@ fi
 
 # 3.5. install NVM to manage node versions
 with_brew 'nvm'
+# 3.5.1 install latest LTS node version
+nvm install --lts --no-progress
 
 # 4. install CLI tools
 with_brew 'bfg'
