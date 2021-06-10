@@ -218,6 +218,12 @@ nvm install --lts --no-progress
 # 3.6. install Yarn JS package manager
 with_brew 'yarn'
 
+# 3.7. install RVM to manage ruby versions
+if ! which rvm >/dev/null; then
+  \curl -sSL https://get.rvm.io | bash -s stable --ruby
+  source "${HOME}/.rvm/scripts/rvm"
+fi
+
 # 4. install CLI tools
 with_brew 'bfg'
 with_brew 'cheat' true false
