@@ -264,7 +264,7 @@ with_brew 'container-diff'
 # 5.5. install kubernetes-related tools
 rm -f /usr/local/bin/kubectl
 with_brew 'kubernetes-cli' false
-with_brew 'kubernetes-helm' false false
+with_brew 'helm' false false
 with_brew 'minikube' false false
 
 # 6. install SDKs
