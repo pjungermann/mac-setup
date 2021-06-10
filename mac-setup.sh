@@ -208,6 +208,9 @@ else
   zsh -i -c 'sdk update'
 fi
 
+# 3.5. install NVM to manage node versions
+with_brew 'nvm'
+
 # 4. install CLI tools
 with_brew 'bfg'
 with_brew 'cheat' true false
