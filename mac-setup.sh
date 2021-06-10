@@ -258,7 +258,7 @@ then
 fi
 
 # 5.4. install container service
-with_brew 'homebrew/cask/docker' false
+with_brew 'homebrew/core/docker' false
 with_brew 'container-diff'
 
 # 5.5. install kubernetes-related tools
