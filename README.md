@@ -104,7 +104,6 @@ $ wget https://raw.githubusercontent.com/pjungermann/mac-setup/master/mac-setup.
 
 ### Communication, Presentation
 * _optional:_ [Airtame](https://airtame.com/) - wireless screen sharing
-* _optional:_ [Skype](https://www.skype.com/) - chats, calls
 * _optional:_ [Slack](https://slack.com/) (App Store) - communication and collaboration
 
 ### Database

@@ -298,7 +298,6 @@ echo "installed the latest SDKs for: Java, Groovy, Kotlin, Maven, Gradle"
 with_brew 'tunnelblick' false false 'Tunnelblick (OpenVPN)'
 
 # 8. install communication software
-with_brew 'skype' false false 'Skype'  # TODO: drop?
 mas_install 'Slack'
 
 # 9. install developer software
