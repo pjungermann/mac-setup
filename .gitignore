@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# JetBrains
+.idea/
+
+# VS Code
+.vscode/
+
+# Local overlays (per-machine, work-only extras)
+Brewfile.local
+*.local
