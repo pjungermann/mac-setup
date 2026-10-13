@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@master
+        env:
+          # Target macOS bash 3.2 (the system /bin/bash).
+          SHELLCHECK_OPTS: --shell=bash --severity=style --enable=all
+        with:
+          scandir: .
+          format: gcc
+          # Skip chezmoi source files that happen to have .sh extensions
+          # — they're templates for the user's $HOME, not repo scripts.
+          ignore_paths: >-
+            run_once_before_install-omz.sh
+
+  commitlint:
+    name: commitlint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install commitlint
+        run: npm install --no-save @commitlint/cli @commitlint/config-conventional
+      - name: Lint PR commits
+        run: >-
+          npx commitlint
+          --from=${{ github.event.pull_request.base.sha }}
+          --to=${{ github.event.pull_request.head.sha }}
+          --verbose

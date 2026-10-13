@@ -1,0 +1,40 @@
+{
+  "extends": ["@commitlint/config-conventional"],
+  "rules": {
+    "type-enum": [
+      2,
+      "always",
+      [
+        "feat",
+        "fix",
+        "chore",
+        "docs",
+        "refactor",
+        "test",
+        "ci",
+        "build",
+        "perf",
+        "revert",
+        "style"
+      ]
+    ],
+    "scope-enum": [
+      2,
+      "always",
+      [
+        "brewfile",
+        "bin",
+        "chezmoi",
+        "mise",
+        "notes",
+        "script",
+        "docs",
+        "ci",
+        "deps",
+        "repo"
+      ]
+    ],
+    "subject-case": [0],
+    "body-max-line-length": [1, "always", 100]
+  }
+}
