@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: mac-setup
+  description: Personal-first idempotent fresh-Mac setup (Homebrew + mise + chezmoi).
+  tags:
+    - macos
+    - shell
+    - dotfiles
+    - homebrew
+    - mise
+    - chezmoi
+  links:
+    - url: https://github.com/pjungermann/mac-setup
+      title: Source
+      icon: github
+spec:
+  type: tool
+  lifecycle: production
+  owner: user:pjungermann

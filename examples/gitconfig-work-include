@@ -1,0 +1,14 @@
+# Example work-only git overlay.
+#
+# Save as e.g. ~/work/.gitconfig and reference from ~/.gitconfig with:
+#
+#   [includeIf "gitdir:~/workspaces/work/"]
+#     path = ~/work/.gitconfig
+#
+# chezmoi will not touch this file — it lives outside the mac-setup source.
+
+[user]
+	email = you@employer.example
+	signingkey = ~/.ssh/id_work.pub
+
+# Project-specific credential helpers, aliases, etc. go here.

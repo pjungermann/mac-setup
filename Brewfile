@@ -1,77 +1,109 @@
-tap "anchore/grype"
-tap "aws/tap"
-tap "homebrew/bundle"
-tap "homebrew/cask"
-tap "homebrew/core"
-tap "pjungermann/tap"
-tap "warrensbox/tap"
-brew "adr-tools"
-brew "akamai"
-brew "asdf"
+# mac-setup Brewfile — personal-first.
+# See AGENTS.md for conventions. Runtimes belong in mise, not here.
+# Work-only extras live in Brewfile.local (gitignored).
+
+# AWS
 brew "aws-iam-authenticator"
+brew "aws-sam-cli"
 brew "awscli"
-brew "coreutils"
-brew "bfg"
-brew "cfn-lint"
-brew "cheat"
-brew "container-diff"
+
+# Containers / orchestration
 brew "docker"
 brew "docker-clean"
 brew "docker-compose"
-brew "findutils"
+brew "docker-credential-helper"
+brew "kagent"
+brew "kubectx"
+brew "oras"
+brew "qemu"
+brew "skopeo"
+
+# Databases
+brew "mysql-client"
+brew "postgresql"
+
+# Dev / build
+brew "bfg"
+brew "cfn-lint"
+brew "gcc"
 brew "gh"
 brew "git"
 brew "git-filter-repo"
 brew "git-quick-stats"
-brew "gnu-tar"
-brew "gnupg"
-brew "go"
 brew "go-jsonnet"
+brew "golangci-lint"
+brew "goreleaser"
+brew "hcl2json"
+brew "pipx"
+brew "python-setuptools"
+brew "shellcheck"
+brew "swagger-codegen"
+brew "yamllint"
+
+# Media / graphics
+brew "ffmpeg"
+brew "ghostscript"
+brew "imagemagick"
+brew "jpeg"
+brew "librsvg"
+brew "poppler"
+
+# Security
+brew "cosign"
+brew "gnupg"
+brew "grype"
+brew "kics"
+brew "sops"
+brew "syft"
+brew "trivy"
+brew "trufflehog"
+
+# System / shell utilities
+brew "adr-tools"
+brew "akamai"
+brew "chezmoi"
+brew "findutils"
+brew "fzf"
+brew "gnu-tar"
 brew "htop"
 brew "hyperfine"
-brew "imagemagick"
-brew "jq"
-brew "kubernetes-cli"
-brew "kubectx"
+brew "jqfmt"
 brew "mas"
+brew "mise"
 brew "nmap"
+brew "pandoc"
 brew "parallel"
-brew "pyenv"
-brew "pyenv-virtualenv"
-brew "python"
-brew "ruby"
-brew "shellcheck"
-brew "sops"
 brew "speedtest-cli"
-brew "syft"
-brew "tldr"
-brew "trivy"
+brew "vale"
 brew "watch"
+brew "wget"
 brew "wifi-password"
-brew "yamllint"
-brew "yarn"
-brew "yq"
-brew "anchore/grype/grype"
-brew "aws/tap/aws-sam-cli"
+
+# Personal tap
 brew "pjungermann/tap/help-cmd"
-brew "warrensbox/tap/tfswitch"
-cask "airtame"
+
+# Casks — personal, always install
 cask "android-file-transfer"
-cask "camunda-modeler"
+cask "aws-vpn-client"
+cask "bitwarden"
 cask "discord"
 cask "dropbox"
-cask "firefox"
-cask "google-chrome"
 cask "jetbrains-toolbox"
+cask "mitmproxy"
 cask "pgadmin4"
 cask "rancher"
-cask "spectacle"
+cask "session-manager-plugin"
 cask "spotify"
-cask "tunnelblick"
-cask "zeebe-modeler"
+cask "yubico-authenticator"
 cask "zoom"
+
+# Casks — want privately AND MDM may preinstall on company Macs.
+# bin/brew-bundle.sh filters any entry whose .app already exists in /Applications/.
+cask "1password"
+cask "claude"
+cask "google-chrome"
+cask "slack"
+
+# Mac App Store — only MAS-exclusive apps belong here.
 mas "Amphetamine", id: 937984704
-mas "AusweisApp2", id: 948660805
-mas "Bitwarden", id: 1352778147
-mas "Slack", id: 803453959
-mas "Yubico Authenticator", id: 1497506650
+mas "AusweisApp", id: 948660805

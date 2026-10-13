@@ -1,179 +1,117 @@
 #!/usr/bin/env bash
-set -e
+# mac-setup — personal-first fresh-Mac setup.
+# See AGENTS.md for conventions. Idempotent; safe to rerun.
+#
+# Usage: ./mac-setup.sh
+#
+# Prereqs: a fresh macOS install with Xcode Command Line Tools installable
+# (xcode-select --install). Everything else bootstraps from here.
 
-update_brewfile=false
-brewfile="${HOME}/.Brewfile"
-no_upgrade=""
+set -euo pipefail
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    -f|--brewfile)
-      source_brewfile="$2"
-      shift
-      shift
-      ;;
-    -b|--use-branch)
-      branch="$2"
-      shift
-      shift
-      ;;
-    -u|--update-brewfile)
-      update_brewfile=true
-      shift
-      ;;
-    --no-global)
-      brewfile="${HOME}/.mac-setup/Brewfile"
-      shift
-      ;;
-    --no-upgrade)
-      no_upgrade="--no-upgrade"
-      shift
-      ;;
-    *)
-      printf "Usage:\n"
-      printf "mac-setup.sh {options}\n"
-      printf "  Options:\n"
-      printf "    [-b|--use-branch {branch}]\n"
-      printf "        Branch from this repository to use when selecting the default Brewfile.\n"
-      printf "    [-f|--brewfile {source-brewfile}]\n"
-      printf "        Source Brewfile. By default, the one in this repository.\n"
-      printf "    [-u|--update-brewfile]\n"
-      printf "        Whether the local Brewfile should be overwritten with the latest state of the source.\n"
-      printf "    [--no-global]\n"
-      printf "        By default, we use the global location ~/.Brewfile as installation destination.\n"
-      printf "        This option disables this and uses a separate location.\n"
-      printf "    [--no-upgrade]\n"
-      printf "        Applies the same option to the brew command.\n"
-      exit 1
-  esac
-done
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
-DEFAULT_BREWFILE="https://raw.githubusercontent.com/pjungermann/mac-setup/${branch:-main}/Brewfile"
-if [ -z "$source_brewfile" ]
-then
-  source_brewfile="$DEFAULT_BREWFILE"
-fi
-
-
-# 1. install xcode Command Line Tools (CLT)
-if xcode-select -p 2> /dev/null
-then
-  echo "Xcode Command Line Tools (CLT) already installed"
-else
-  echo "Xcode Command Line Tools (CLT) not installed, yet"
-  xcode-select --install
-  while ! xcode-select -p 2>&1 /dev/null
-  do
-    read -rs \
-         -p "Please complete the Xcode Command Line Tools installation. Press any key to continue." \
-         -n 1
+section() {
     echo
-  done
-  echo "installed Xcode Command Line Tools (CLT)"
+    echo "=== $1 ==="
+}
+
+# 0. Self-bootstrap when invoked as a single-file download (curl -o ... && ./mac-setup.sh).
+# Fetches the full repo as a tarball (no git required yet) and re-execs from there.
+# Later, after `brew bundle` installs git, we convert the dest into a real git clone
+# so subsequent runs can `git pull`.
+if [[ ! -d "$SCRIPT_DIR/bin" ]]; then
+    dest="${MAC_SETUP_DIR:-$HOME/mac-setup}"
+    section "Bootstrapping full repo to $dest"
+    mkdir -p "$dest"
+    curl -fsSL "https://github.com/pjungermann/mac-setup/archive/refs/heads/main.tar.gz" \
+        | tar xz --strip-components=1 -C "$dest"
+    exec "$dest/mac-setup.sh" "$@"
 fi
 
-
-# 2. install "Oh My Zsh" - https://ohmyz.sh
-# shellcheck disable=SC2230
-if ! which -s zsh || [[ ! -d "${HOME}/.oh-my-zsh" ]]
-then
-  sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended"
-  echo "installed oh-my-zsh"
-fi
-# change the default shell to zsh
-current_shell="$(finger "${USER}" | grep Shell | sed -E -e 's/.*Shell: (.*)/\1/g')"
-if [[ "${current_shell}" != "/bin/zsh" ]]
-then
-  chsh -s /bin/zsh
-  echo "changed default shell to zsh"
-fi
-ZSHRC="${HOME}/.zshrc"
-
-
-# 3. install package managers
-# 3.1. install "Homebrew" (general Mac OS package manager)
-# shellcheck disable=SC2230
-if which -s brew
-then
-  brew update
+# 1. Xcode Command Line Tools
+section "Xcode Command Line Tools"
+if xcode-select -p >/dev/null 2>&1; then
+    echo "already installed"
 else
-  bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-  # shellcheck disable=SC2016
-  (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> /Users/patrick.jungermann/.zprofile
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-  echo "installed Homebrew"
-fi
-HOMEBREW_PREFIX="$(brew --prefix)"
-
-
-# 4. Install by Brewfile
-if $update_brewfile || [ ! -f "${brewfile}" ]
-then
-  mkdir -p "$(dirname "$brewfile")"
-  curl -fsSL "${source_brewfile}" -o "${brewfile}"
-fi
-if grep -E -e '^mas "' "${brewfile}" >/dev/null
-then
-  read -rs \
-       -p "Please log in manually at the Mac App Store. Press any key to continue." \
-       -n 1
-fi
-brew bundle --file "${brewfile}" ${no_upgrade}
-
-
-# 5. Install software using asdf
-# 5.1. install to zsh / handle brew caveat
-asdf_zsh="${HOMEBREW_PREFIX}/opt/asdf/libexec/asdf.sh"
-if ! grep "$asdf_zsh" "$ZSHRC" >/dev/null
-then
- cat <<-EOS >> "$ZSHRC"
-# asdf-vm.com
-source "$asdf_zsh"
-EOS
-  # shellcheck disable=SC1090
-  source "$ZSHRC"  # reload
+    xcode-select --install
+    until xcode-select -p >/dev/null 2>&1; do
+        read -rsn1 -p "Press any key once the Xcode CLT install completes. "
+        echo
+    done
 fi
 
-java_distribution="corretto"
-for asdf_plugin in gradle groovy java maven nodejs ruby
-do
-  if ! asdf plugin list | grep -E -e "^${asdf_plugin}$"
-  then
-    asdf plugin add "$asdf_plugin"
-  fi
+# 2. Homebrew
+section "Homebrew"
+if command -v brew >/dev/null 2>&1; then
+    brew update
+else
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    # shellcheck disable=SC2016 # intentional: literal written to .zprofile
+    brew_shellenv='eval "$(/opt/homebrew/bin/brew shellenv)"'
+    if ! grep -qF "$brew_shellenv" "$HOME/.zprofile" 2>/dev/null; then
+        echo "$brew_shellenv" >> "$HOME/.zprofile"
+    fi
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 
-  asdf_plugin_version=latest
-  if [ "$asdf_plugin" = "java" ]
-  then
-    asdf_plugin_version="latest:${java_distribution}"
-  fi
+# 3. Pre-install notes — flag anything the user needs to prepare before packages install.
+section "Pre-install notes"
+if [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; then
+    "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
+fi
 
-  asdf install "$asdf_plugin" "$asdf_plugin_version"
-  asdf global "$asdf_plugin" "$asdf_plugin_version"
-done
-# 5.1 Java - some additional versions
-for java_version in 8 11
-do
-  asdf install java "latest:${java_distribution}-${java_version}."
-done
+# 4. Homebrew packages (via wrapper that skips MDM-preinstalled .app casks).
+section "Homebrew packages"
+"$SCRIPT_DIR/bin/brew-bundle.sh"
 
+# 4b. If we bootstrapped from a tarball, convert the dir to a git clone now that
+# git exists (installed by step 4). Reruns can then `cd $SCRIPT_DIR && git pull`.
+if [[ ! -d "$SCRIPT_DIR/.git" ]]; then
+    section "Converting bootstrapped dir to git clone"
+    (
+        cd "$SCRIPT_DIR"
+        git init -q -b main
+        git remote add origin https://github.com/pjungermann/mac-setup.git
+        git fetch origin main -q
+        git reset --hard origin/main -q
+        git branch --set-upstream-to=origin/main main >/dev/null
+    )
+fi
 
-# 6. pre-install latest terraform version
-tfswitch --latest
+# 5. chezmoi — apply dotfiles from this repo as the chezmoi source.
+# chezmoi's run_once_before_ scripts install Oh My Zsh before placing .zshrc.
+section "chezmoi dotfiles"
+chezmoi init --apply --source="$SCRIPT_DIR"
 
+# 6. Default shell → zsh (macOS default since Catalina; no-op most of the time).
+if [[ "$SHELL" != "/bin/zsh" ]]; then
+    section "Default shell"
+    chsh -s /bin/zsh
+fi
 
-# 7. Oh My Zsh - Plugins
-zsh_plugins="\
-aws colored-man-pages command-not-found docker docker-compose git gradle helm history-substring-search \
-kubectl man mvn"
-sed -i "" \
-    -E \
-    -e "s#^plugins=\(.*\)#plugins=(${zsh_plugins})#" \
-    "${HOME}/.zshrc"
+# 7. mise runtimes — reads ~/.config/mise/config.toml placed by chezmoi.
+section "mise runtimes"
+mise install
 
+# 8. Yarn via Corepack (Node ships with Corepack; per-project pinning via packageManager).
+section "Yarn via Corepack"
+corepack enable
+corepack install -g yarn@stable
 
-echo "finished with the machine setup"
+# 9. Claude Code CLI — not in Homebrew; installed via Anthropic's official script.
+section "Claude Code CLI"
+if command -v claude >/dev/null 2>&1; then
+    echo "already installed"
+else
+    curl -fsSL https://claude.ai/install.sh | bash
+fi
 
+# 10. Post-install notes — surfaces per-app post-steps (profile imports, SSO sign-ins, etc.).
+section "Post-install notes"
+if [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; then
+    "$SCRIPT_DIR/bin/notes.sh" --phase post --summary || true
+fi
 
-# run zsh
-zsh
+echo
+echo "Setup complete. Open a new terminal to pick up shell changes."
