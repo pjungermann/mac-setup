@@ -1,0 +1,17 @@
+# Example Brewfile.local — copy to ../Brewfile.local (gitignored) and edit.
+#
+# bin/brew-bundle.sh merges this on top of the tracked Brewfile at install
+# time. Put private, work-only, or machine-specific entries here. Same
+# syntax as the main Brewfile.
+
+# Example: company tools you don't want in the public Brewfile.
+# cask "forticlient-vpn"
+# cask "jamf-connect"
+
+# Example: experiment-only taps.
+# tap "someone/experimental"
+# brew "someone/experimental/new-tool"
+
+# Example: machine-specific extras (desktop vs. laptop, etc.).
+# cask "obs"
+# cask "handbrake"

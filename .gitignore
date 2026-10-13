@@ -10,3 +10,8 @@
 # Local overlays (per-machine, work-only extras)
 Brewfile.local
 *.local
+
+# examples/ ships starter templates — track them even though their
+# names match the Brewfile.local / *.local patterns above.
+!examples/Brewfile.local
+!examples/*.local
