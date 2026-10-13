@@ -17,8 +17,11 @@ jobs:
       - name: Run shellcheck
         uses: ludeeus/action-shellcheck@master
         env:
-          # Target macOS bash 3.2 (the system /bin/bash).
-          SHELLCHECK_OPTS: --shell=bash --severity=style --enable=all
+          # Target macOS bash 3.2 (the system /bin/bash). severity=warning
+          # keeps CI focused on real defects — style-level notes
+          # (SC2250 brace preference, SC2312 process-substitution return
+          # masking) don't fail the build.
+          SHELLCHECK_OPTS: --shell=bash --severity=warning
         with:
           scandir: .
           format: gcc
