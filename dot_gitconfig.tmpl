@@ -1,0 +1,27 @@
+[user]
+	name = Patrick Jungermann
+	email = Patrick.Jungermann@gmail.com
+	signingkey = ~/.ssh/id_rsa.pub
+[core]
+	autocrlf = input
+[init]
+	defaultBranch = main
+[push]
+	autoSetupRemote = true
+[gpg]
+	format = ssh
+[rerere]
+	enabled = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[diff "sopsdiffer"]
+	textconv = sops -d
+[credential "https://github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential

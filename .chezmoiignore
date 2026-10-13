@@ -1,0 +1,18 @@
+# chezmoi uses this repo as its source directory. The repo also contains
+# mac-setup scaffolding (Brewfile, bin/, scripts, docs). This file tells
+# chezmoi to ignore everything that is NOT a dotfile source.
+
+AGENTS.md
+Brewfile
+Brewfile.local
+LICENSE
+README.md
+catalog-info.yaml
+mac-setup.sh
+bin/
+config/
+examples/
+.github/
+.commitlintrc.json
+.gitignore
+.worktrees/

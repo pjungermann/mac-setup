@@ -1,0 +1,43 @@
+# Defensive TERM guard for nested terminal sessions (tmux-in-Terminal.app,
+# some SSH scenarios) where TERM arrives unset or as "dumb", which breaks
+# colors and clear-screen escapes.
+if [[ -z "${TERM:-}" || "$TERM" == "dumb" ]]; then
+    export TERM=xterm-256color
+fi
+
+# Oh My Zsh — framework + theme.
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+
+plugins=(
+    aws
+    colored-man-pages
+    command-not-found
+    docker
+    docker-compose
+    git
+    gradle
+    helm
+    history-substring-search
+    kubectl
+    man
+    mise
+    mvn
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# Personal PATH additions.
+export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
+
+# mise — polyglot runtime manager (https://mise.jdx.dev).
+eval "$(mise activate zsh)"
+
+# pipx — isolated per-tool Python envs on PATH, with bash-style completion.
+export PATH="$PATH:$HOME/.local/bin"
+autoload -U bashcompinit
+bashcompinit
+
+# Rancher Desktop CLI binaries (nerdctl, kubectl shim, helm shim).
+export PATH="$HOME/.rd/bin:$PATH"
