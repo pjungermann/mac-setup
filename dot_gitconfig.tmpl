@@ -4,6 +4,12 @@
 	signingkey = ~/.ssh/id_rsa.pub
 [core]
 	autocrlf = input
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	line-numbers = true
 [init]
 	defaultBranch = main
 [push]
