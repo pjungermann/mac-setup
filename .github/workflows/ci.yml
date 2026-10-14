@@ -54,7 +54,7 @@ jobs:
         # Documentation flavor chosen because it covers all five linters
         # in .mega-linter-ci.yml (shell / yaml / json / markdown / actions);
         # ci_light lacks markdownlint and actionlint.
-        uses: oxsecurity/megalinter/flavors/documentation@9949bad031045f366be2467e00e8371a7328a2e2 # v10
+        uses: oxsecurity/megalinter/flavors/documentation@9949bad031045f366be2467e00e8371a7328a2e2 # v10.1.0
         env:
           # GH_TOKEN is what zizmor reads to authenticate GitHub API
           # calls (e.g. tag lookups during its artipacked audit).
@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 0
       - name: MegaLinter
         # Pinned to v10 commit SHA (tag can be moved; SHA cannot).
-        uses: oxsecurity/megalinter/flavors/security@9949bad031045f366be2467e00e8371a7328a2e2 # v10
+        uses: oxsecurity/megalinter/flavors/security@9949bad031045f366be2467e00e8371a7328a2e2 # v10.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MEGALINTER_CONFIG: .mega-linter-security.yml
