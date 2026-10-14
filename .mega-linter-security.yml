@@ -1,0 +1,33 @@
+# MegaLinter config for the security-flavored job.
+# Loaded in CI via step env MEGALINTER_CONFIG.
+# For local runs (see .mega-linter-ci.yml for why -e is needed):
+#   npx mega-linter-runner --flavor security --release v10 \
+#     -e MEGALINTER_CONFIG=.mega-linter-security.yml
+#
+# Relies on the security flavor's default scanner set (betterleaks,
+# trufflehog, secretlint, trivy, trivy-sbom, grype, osv-scanner,
+# checkov, devskim, dustilock, kingfisher, syft, ...).
+
+APPLY_FIXES: all
+# Only apply fixes on PR runs; push-to-main runs still lint but don't
+# auto-commit back to main.
+APPLY_FIXES_EVENT: pull_request
+
+DISABLE_LINTERS:
+  # megalinter v10.1.0 invokes semgrep-core with an unsupported
+  # --error flag ("unknown option '--error'") when the linter runs
+  # with no explicit file list (which happens with
+  # VALIDATE_ALL_CODEBASE=true, i.e. push-to-main builds and local
+  # runs). An upstream fix is in flight but not released as of v10.
+  # Re-check and re-enable after bumping the pinned version.
+  - REPOSITORY_SEMGREP
+
+# Trivy's megalinter wrapper doesn't honor the TRIVY_DB_REPOSITORY /
+# TRIVY_JAVA_DB_REPOSITORY env vars, so the mirror list must be
+# passed as explicit CLI args or trivy falls back to ghcr.io and
+# hits anonymous rate limits. The documentation flavor also ships
+# trivy; it's disabled there (see .mega-linter-ci.yml) so these
+# arguments live only here.
+REPOSITORY_TRIVY_ARGUMENTS: >-
+  --db-repository mirror.gcr.io/aquasec/trivy-db:2,ghcr.io/aquasecurity/trivy-db:2,public.ecr.aws/aquasecurity/trivy-db:2
+  --java-db-repository mirror.gcr.io/aquasec/trivy-java-db:1,ghcr.io/aquasecurity/trivy-java-db:1,public.ecr.aws/aquasecurity/trivy-java-db:1

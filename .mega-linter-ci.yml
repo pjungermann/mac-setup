@@ -1,0 +1,48 @@
+# MegaLinter config for the documentation-flavored job.
+# Loaded in CI via step env MEGALINTER_CONFIG.
+# For local runs the env var must be passed via -e, not the shell env,
+# because mega-linter-runner does not forward arbitrary shell env vars
+# into the container:
+#   npx mega-linter-runner --flavor documentation --release v10 \
+#     -e MEGALINTER_CONFIG=.mega-linter-ci.yml
+
+# No ENABLE_LINTERS: let megalinter auto-select which linters to run
+# based on files present in the repo. Add specific entries to
+# DISABLE_LINTERS below when a linter is actively unwanted.
+
+APPLY_FIXES: all
+# Only apply fixes on PR runs; push-to-main runs still lint but don't
+# auto-commit back to main.
+APPLY_FIXES_EVENT: pull_request
+
+# Zizmor's remote-dependent audits (artipacked, unpinned-uses) call
+# GitHub's git-upload-pack endpoint and get 401 Unauthorized in CI
+# even when GH_TOKEN is set — the token presentation to git doesn't
+# work. --offline skips those audits; we've already addressed their
+# findings via SHA pins and inline 'zizmor: ignore[artipacked]'
+# comments in the workflow.
+ACTION_ZIZMOR_ARGUMENTS: --offline
+
+DISABLE_LINTERS:
+  # shfmt enforces its own formatting style (hard tabs, specific brace
+  # placement) that doesn't match the repo's existing 4-space style.
+  # Shellcheck still catches actual defects.
+  - BASH_SHFMT
+  # Security scanners run in the security-flavor job (both flavors
+  # ship most of them). Disabling here avoids double work.
+  - REPOSITORY_BETTERLEAKS
+  - REPOSITORY_CHECKOV
+  - REPOSITORY_GRYPE
+  - REPOSITORY_OSV_SCANNER
+  - REPOSITORY_SECRETLINT
+  # megalinter v10.1.0 invokes semgrep-core with an unsupported
+  # --error flag ("unknown option '--error'") when the linter runs
+  # with no explicit file list (which happens with
+  # VALIDATE_ALL_CODEBASE=true, i.e. push-to-main builds and local
+  # runs). An upstream fix is in flight but not released as of v10.
+  # Re-check and re-enable after bumping the pinned version.
+  - REPOSITORY_SEMGREP
+  - REPOSITORY_SYFT
+  - REPOSITORY_TRIVY
+  - REPOSITORY_TRIVY_SBOM
+  - REPOSITORY_TRUFFLEHOG

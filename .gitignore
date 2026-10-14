@@ -15,3 +15,6 @@ Brewfile.local
 # names match the Brewfile.local / *.local patterns above.
 !examples/Brewfile.local
 !examples/*.local
+
+# Local megalinter runs drop reports here.
+megalinter-reports/

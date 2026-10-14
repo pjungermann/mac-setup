@@ -1,0 +1,13 @@
+extends: default
+
+rules:
+  line-length: disable
+  document-start: disable
+  truthy:
+    # GitHub Actions workflows use `on:` as a key; yamllint's truthy
+    # rule otherwise flags that as a boolean.
+    allowed-values: ["true", "false", "on", "off"]
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: disable

@@ -5,40 +5,22 @@ on:
     branches: [main]
   pull_request:
 
+# Workflow-level permissions stay minimal; each job that needs more
+# grants its own in a job-scoped `permissions:` block.
 permissions:
   contents: read
 
 jobs:
-  shellcheck:
-    name: shellcheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run shellcheck
-        uses: ludeeus/action-shellcheck@master
-        env:
-          # Target macOS bash 3.2 (the system /bin/bash). severity=warning
-          # keeps CI focused on real defects — style-level notes
-          # (SC2250 brace preference, SC2312 process-substitution return
-          # masking) don't fail the build.
-          SHELLCHECK_OPTS: --shell=bash --severity=warning
-        with:
-          scandir: .
-          format: gcc
-          # Skip chezmoi source files that happen to have .sh extensions
-          # — they're templates for the user's $HOME, not repo scripts.
-          ignore_paths: >-
-            run_once_before_install-omz.sh
-
   commitlint:
     name: commitlint
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
       - name: Install commitlint
@@ -49,3 +31,55 @@ jobs:
           --from=${{ github.event.pull_request.base.sha }}
           --to=${{ github.event.pull_request.head.sha }}
           --verbose
+
+  megalinter-ci:
+    name: megalinter (documentation)
+    runs-on: ubuntu-latest
+    permissions:
+      # contents: write — APPLY_FIXES in .mega-linter-ci.yml commits
+      #                   auto-fixes back to the PR branch.
+      # pull-requests: write — megalinter posts a summary PR comment.
+      contents: write
+      pull-requests: write
+    steps:
+      # Default persist-credentials:true is intentional: megalinter's
+      # APPLY_FIXES pushes auto-fix commits back to the PR branch, which
+      # needs the GitHub Actions token credential to persist.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # zizmor: ignore[artipacked] v4 — APPLY_FIXES needs persist-credentials
+        with:
+          fetch-depth: 0
+      - name: MegaLinter
+        # Pinned to v10 commit SHA (tag can be moved; SHA cannot).
+        # Resolve current v10 with: gh api repos/oxsecurity/megalinter/git/refs/tags/v10
+        # Documentation flavor chosen because it covers all five linters
+        # in .mega-linter-ci.yml (shell / yaml / json / markdown / actions);
+        # ci_light lacks markdownlint and actionlint.
+        uses: oxsecurity/megalinter/flavors/documentation@9949bad031045f366be2467e00e8371a7328a2e2 # v10
+        env:
+          # GH_TOKEN is what zizmor reads to authenticate GitHub API
+          # calls (e.g. tag lookups during its artipacked audit).
+          # Without it, zizmor crashes with 401 Unauthorized.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MEGALINTER_CONFIG: .mega-linter-ci.yml
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name != 'pull_request' }}
+
+  megalinter-security:
+    name: megalinter (security)
+    runs-on: ubuntu-latest
+    permissions:
+      # Same rationale as megalinter-ci above.
+      contents: write
+      pull-requests: write
+    steps:
+      # Same rationale as megalinter-ci above.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # zizmor: ignore[artipacked] v4 — APPLY_FIXES needs persist-credentials
+        with:
+          fetch-depth: 0
+      - name: MegaLinter
+        # Pinned to v10 commit SHA (tag can be moved; SHA cannot).
+        uses: oxsecurity/megalinter/flavors/security@9949bad031045f366be2467e00e8371a7328a2e2 # v10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MEGALINTER_CONFIG: .mega-linter-security.yml
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name != 'pull_request' }}
