@@ -41,6 +41,7 @@ brew "pipx"
 brew "python-setuptools"
 brew "shellcheck"
 brew "swagger-codegen"
+brew "tenv"
 brew "yamllint"
 
 # Media / graphics
