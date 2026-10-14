@@ -78,4 +78,4 @@ The repo is personal-first but structured for forks:
 
 ## License
 
-[Apache-2.0](./LICENSE).
+[MIT](./LICENSE).
