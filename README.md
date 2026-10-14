@@ -40,7 +40,7 @@ In order:
 
 ## Layout
 
-```
+```text
 mac-setup.sh              # entry point; self-bootstraps when curl'd
 Brewfile                  # tracked formulae, casks, mas entries
 Brewfile.local            # (gitignored) personal/work extras merged by the wrapper

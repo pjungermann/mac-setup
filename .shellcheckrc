@@ -1,0 +1,6 @@
+# shellcheck config picked up by any invoker (CLI, megalinter, pre-commit).
+# Target macOS bash 3.2 (the system /bin/bash). severity=warning keeps the
+# focus on real defects; style-level notes (SC2250 brace preference,
+# SC2312 process-substitution return masking) don't fail the build.
+shell=bash
+severity=warning
