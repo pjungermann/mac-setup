@@ -1,0 +1,12 @@
+# ~/.zprofile — sourced once per login shell (SSH sessions, Terminal.app
+# when "Login shell" is set, system boot login). Interactive non-login
+# shells (nested terminals, tmux panes) use ~/.zshrc.
+#
+# Note: Homebrew's shellenv line is written to this file by mac-setup.sh
+# step 2 at install time, not by chezmoi — the brew-prefix path differs
+# between Apple Silicon and Intel, and the installer is the authority.
+
+# JetBrains Toolbox CLI shortcuts (`idea`, `pycharm`, `goland`, ...).
+# Only present after installing JetBrains Toolbox and enabling CLI
+# shortcuts in its settings.
+export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
