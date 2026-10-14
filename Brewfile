@@ -52,6 +52,7 @@ brew "librsvg"
 brew "poppler"
 
 # Security
+brew "betterleaks"
 brew "cosign"
 brew "gnupg"
 brew "grype"
