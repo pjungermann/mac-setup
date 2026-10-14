@@ -1,0 +1,10 @@
+# ~/.zshenv — sourced on every zsh invocation (interactive, non-interactive,
+# scripts). Keep contents minimal and side-effect-free; heavier config
+# belongs in ~/.zshrc.
+
+# Rust toolchain env (cargo bin on PATH, rustup paths). Written by rustup
+# at install time; sourcing it here makes `cargo` and `rustc` available to
+# scripts that don't go through an interactive shell.
+if [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi

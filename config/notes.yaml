@@ -66,3 +66,43 @@ notes:
     message: |
       Restore ~/.ssh/ from your previous machine over an encrypted channel.
       Verify with: ssh -T git@github.com
+
+  - app: gh
+    phase: post
+    severity: required
+    message: |
+      Authenticate the GitHub CLI so the gitconfig credential helper
+      (!/opt/homebrew/bin/gh auth git-credential) works for HTTPS clones
+      and pushes:
+        gh auth login
+      Add any additional accounts (work vs. personal) with:
+        gh auth login --hostname github.com
+      Switch between them later with: gh auth switch
+
+  - app: gh-copilot
+    phase: post
+    severity: optional
+    message: |
+      If you use GitHub Copilot in the terminal, install the extension and
+      authenticate:
+        gh extension install github/gh-copilot
+        gh copilot suggest "list files"   # triggers auth on first use
+      Skip if you don't use Copilot CLI.
+
+  - app: sops
+    phase: post
+    severity: required
+    message: |
+      Restore ~/.sops.yaml from your previous machine (or your password
+      manager) so sops-encrypted files decrypt against the right KMS keys.
+      Verify in a repo that uses sops: sops -d path/to/encrypted-file
+      Without this file, every `sops -d` falls back to no creation_rules
+      and will refuse.
+
+  - app: cargo
+    phase: post
+    severity: optional
+    message: |
+      Rust itself is installed via mise. If you publish to crates.io, also
+      restore ~/.cargo/credentials from your previous machine, or run
+      `cargo login <token>` fresh. Only needed if you push crates.
