@@ -41,6 +41,9 @@ export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/usr/local/opt/coreutils
 # mise — polyglot runtime manager (https://mise.jdx.dev).
 eval "$(mise activate zsh)"
 
+# direnv — per-directory environment variables via .envrc.
+eval "$(direnv hook zsh)"
+
 # pipx — isolated per-tool Python envs on PATH, with bash-style completion.
 export PATH="$PATH:$HOME/.local/bin"
 autoload -U bashcompinit
