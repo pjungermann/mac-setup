@@ -1,0 +1,9 @@
+{
+  "threshold": 10,
+  "reporters": ["console", "html"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/.worktrees/**",
+    "**/megalinter-reports/**"
+  ]
+}
