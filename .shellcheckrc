@@ -1,6 +1,10 @@
 # shellcheck config picked up by any invoker (CLI, megalinter, pre-commit).
-# Target macOS bash 3.2 (the system /bin/bash). severity=warning keeps the
-# focus on real defects; style-level notes (SC2250 brace preference,
-# SC2312 process-substitution return masking) don't fail the build.
+# Target macOS bash 3.2 (the system /bin/bash). The `disable=` directive
+# (https://github.com/koalaman/shellcheck/wiki/Directive#shellcheckrc-file)
+# suppresses project-wide the info / style checks we tolerate:
+#   SC2012  ls | wc -l for simple dir counts (filenames are controlled)
+#   SC2015  A && B || C in checksum fallbacks and conditional one-liners
+#   SC2250  brace preference around every ${var}
+#   SC2312  process substitution return masking
 shell=bash
-severity=warning
+disable=SC2012,SC2015,SC2250,SC2312
