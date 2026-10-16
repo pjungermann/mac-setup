@@ -35,13 +35,12 @@
 #      Or with encryption (recommended, session transcripts can hold secrets):
 #        ~/claude-code-backup-YYYYMMDD-HHMMSS.tar.gz.gpg
 #        ~/claude-code-backup-YYYYMMDD-HHMMSS.tar.gz.gpg.sha256
-#      Commands:
-#        ./mac-setup.sh migrate-claude-code backup            # plain
-#        ./mac-setup.sh migrate-claude-code backup --encrypt  # encrypted (prompts for passphrase)
+#      ./mac-setup.sh migrate-claude-code backup            # plain
+#      ./mac-setup.sh migrate-claude-code backup --encrypt  # encrypted (prompts for passphrase)
 #
 #   2. For migration, copy BOTH files (tarball + .sha256) to the target. Example:
-#        scp ~/claude-code-backup-*.tar.gz*       newlaptop:~/   # plain
-#        scp ~/claude-code-backup-*.tar.gz.gpg*   newlaptop:~/   # encrypted
+#      scp ~/claude-code-backup-*.tar.gz*       newlaptop:~/   # plain
+#      scp ~/claude-code-backup-*.tar.gz.gpg*   newlaptop:~/   # encrypted
 #
 #   3. On a fresh target, pull the migrate script out of the tarball.
 #      Steps 3-5 use the direct `./bin/migrate-claude-code.sh` form because
@@ -59,11 +58,11 @@
 #
 #   4. Dry-run verifies the SHA256, extracts to a temp dir, runs checks.
 #      Your real ~/.claude/ is untouched.
-#        ./bin/migrate-claude-code.sh restore --dry-run claude-code-backup-*.tar.gz
+#      ./bin/migrate-claude-code.sh restore --dry-run claude-code-backup-*.tar.gz
 #
 #   5. If dry-run output looks right, restore for real. Any existing
 #      ~/.claude/ is first copied to ~/.claude.backup-YYYYMMDD-HHMMSS/.
-#        ./bin/migrate-claude-code.sh restore claude-code-backup-*.tar.gz
+#      ./bin/migrate-claude-code.sh restore claude-code-backup-*.tar.gz
 #
 # The tarball contains this script itself (step 3 above), so one copied file is
 # enough to carry the whole restore. SHA256 is written by `backup` and
