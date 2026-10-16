@@ -35,39 +35,40 @@
 #
 # End-to-end workflow:
 #
-#   # 1. On the OLD laptop, audit first; no files written.
-#   ./mac-setup.sh migrate-laptop scan --mac-setup ~/workspaces/github/mac-setup
+#   1. On the OLD laptop, audit first; no files written.
+#        ./mac-setup.sh migrate-laptop scan --mac-setup ~/workspaces/github/mac-setup
 #
-#   # 2. Bundle. Writes two files beside each other:
-#   #      ~/laptop-migration-YYYYMMDD-HHMMSS.tar.gz(.gpg)
-#   #      ~/laptop-migration-YYYYMMDD-HHMMSS.tar.gz(.gpg).sha256
-#   ./mac-setup.sh migrate-laptop export --encrypt
+#   2. Bundle. Writes two files beside each other:
+#        ~/laptop-migration-YYYYMMDD-HHMMSS.tar.gz(.gpg)
+#        ~/laptop-migration-YYYYMMDD-HHMMSS.tar.gz(.gpg).sha256
+#      Command:
+#        ./mac-setup.sh migrate-laptop export --encrypt
 #
-#   # 3. Copy BOTH files to the new laptop (encrypted bundle recommended):
-#   scp ~/laptop-migration-*.tar.gz.gpg*   newlaptop:~/
+#   3. Copy BOTH files to the new laptop (encrypted bundle recommended):
+#        scp ~/laptop-migration-*.tar.gz.gpg*   newlaptop:~/
 #
-#   # 4. On the NEW laptop, run mac-setup FIRST so brew + shell exist.
-#   #    Then pull this script out of the tarball and dry-run. Steps 4-5
-#   #    use the direct `./bin/migrate-laptop.sh` form because the tarball
-#   #    ships only this one script, not the full repo clone; use the
-#   #    `./mac-setup.sh migrate-laptop ...` router form once the clone is
-#   #    in place. The tarball member key is the path the source machine
-#   #    invoked the script from (for a repo clone, likely
-#   #    `bin/migrate-laptop.sh`). List it first to confirm, then extract
-#   #    using that exact path:
-#   #      gpg --decrypt laptop-migration-*.tar.gz.gpg | tar -tzf - | grep migrate-laptop
-#   gpg --decrypt laptop-migration-*.tar.gz.gpg \
-#     | tar -xzf - bin/migrate-laptop.sh
-#   ./bin/migrate-laptop.sh install --dry-run laptop-migration-*.tar.gz.gpg
+#   4. On the NEW laptop, run mac-setup FIRST so brew + shell exist.
+#      Then pull this script out of the tarball and dry-run. Steps 4-5
+#      use the direct `./bin/migrate-laptop.sh` form because the tarball
+#      ships only this one script, not the full repo clone; use the
+#      `./mac-setup.sh migrate-laptop ...` router form once the clone is
+#      in place. The tarball member key is the path the source machine
+#      invoked the script from (for a repo clone, likely
+#      `bin/migrate-laptop.sh`). List it first to confirm, then extract
+#      using that exact path:
+#        gpg --decrypt laptop-migration-*.tar.gz.gpg | tar -tzf - | grep migrate-laptop
+#        gpg --decrypt laptop-migration-*.tar.gz.gpg \
+#          | tar -xzf - bin/migrate-laptop.sh
+#        ./bin/migrate-laptop.sh install --dry-run laptop-migration-*.tar.gz.gpg
 #
-#   # 5. If the dry-run looks right, install for real. Existing files that
-#   #    would be overwritten are first copied to a .backup-YYYYMMDD-HHMMSS
-#   #    sibling path.
-#   ./bin/migrate-laptop.sh install laptop-migration-*.tar.gz.gpg
+#   5. If the dry-run looks right, install for real. Existing files that
+#      would be overwritten are first copied to a .backup-YYYYMMDD-HHMMSS
+#      sibling path.
+#        ./bin/migrate-laptop.sh install laptop-migration-*.tar.gz.gpg
 #
-#   # 6. Then run `./mac-setup.sh migrate-claude-code restore <tarball>`
-#   #    and walk the printed manual-steps checklist (1Password, iCloud,
-#   #    SSO, browser sign-ins, IDE Settings Sync, Time Machine, iMessage).
+#   6. Then run `./mac-setup.sh migrate-claude-code restore <tarball>`
+#      and walk the printed manual-steps checklist (1Password, iCloud,
+#      SSO, browser sign-ins, IDE Settings Sync, Time Machine, iMessage).
 #
 # What travels (each category exported only if present on the source laptop):
 #   SSH:         ~/.ssh/{config,known_hosts,authorized_keys,id_*,id_*.pub}
