@@ -40,6 +40,12 @@
 #   scp ~/claude-code-backup-*.tar.gz.gpg*   newlaptop:~/   # encrypted
 #
 #   # 3. On a fresh target — pull the migrate script out of the tarball.
+#   #    If the script was invoked from a path other than ~/migrate-claude-code.sh
+#   #    on the source machine, its member path inside the tarball is the one
+#   #    from that machine. List the tarball first to confirm, then extract
+#   #    using the exact member path from the listing:
+#   #      tar -tzf claude-code-backup-*.tar.gz                   | grep migrate-claude-code   # plain
+#   #      gpg --decrypt claude-code-backup-*.tar.gz.gpg | tar -tzf - | grep migrate-claude-code   # encrypted
 #   tar -xzf claude-code-backup-*.tar.gz migrate-claude-code.sh                # plain
 #   gpg --decrypt claude-code-backup-*.tar.gz.gpg \
 #     | tar -xzf - migrate-claude-code.sh                                      # encrypted
