@@ -7,11 +7,14 @@
 #   - Migrating between laptops
 #
 # Usage:
-#   ./migrate-claude-code.sh backup  [--yes] [--encrypt] [outfile]  # bundle state
-#   ./migrate-claude-code.sh restore [--dry-run] <tarball>          # extract into ~/.claude
-#   ./migrate-claude-code.sh verify  [--root <path>]                # check installed state
-#   ./migrate-claude-code.sh list                                   # project memory dirs
-#   ./migrate-claude-code.sh --help
+#   ./mac-setup.sh migrate-claude-code backup  [--yes] [--encrypt] [outfile]  # bundle state
+#   ./mac-setup.sh migrate-claude-code restore [--dry-run] <tarball>          # extract into ~/.claude
+#   ./mac-setup.sh migrate-claude-code verify  [--root <path>]                # check installed state
+#   ./mac-setup.sh migrate-claude-code list                                   # project memory dirs
+#   ./mac-setup.sh migrate-claude-code --help
+#
+# Direct invocation as `bin/migrate-claude-code.sh <command> ...` works too;
+# the router form above is the one the README documents.
 #
 # `export` and `install` are kept as aliases for `backup` and `restore` for
 # backwards compatibility.
@@ -22,41 +25,44 @@
 #   touches disk. GPG prompts for a passphrase twice. `restore` auto-detects
 #   the `.gpg` suffix and prompts for the passphrase on decryption. Requires
 #   `gpg` on PATH (macOS: `brew install gnupg`). If you lose the passphrase,
-#   the tarball is unrecoverable — save it in a password manager first.
+#   the tarball is unrecoverable; save it in a password manager first.
 #
 # End-to-end workflow:
 #
 #   # 1. Bundle current state. Writes two files:
 #   #      ~/claude-code-backup-YYYYMMDD-HHMMSS.tar.gz
 #   #      ~/claude-code-backup-YYYYMMDD-HHMMSS.tar.gz.sha256
-#   #    Or with encryption (recommended — session transcripts can hold secrets):
+#   #    Or with encryption (recommended, session transcripts can hold secrets):
 #   #      ~/claude-code-backup-YYYYMMDD-HHMMSS.tar.gz.gpg
 #   #      ~/claude-code-backup-YYYYMMDD-HHMMSS.tar.gz.gpg.sha256
-#   ./migrate-claude-code.sh backup            # plain
-#   ./migrate-claude-code.sh backup --encrypt  # encrypted (prompts for passphrase)
+#   ./mac-setup.sh migrate-claude-code backup            # plain
+#   ./mac-setup.sh migrate-claude-code backup --encrypt  # encrypted (prompts for passphrase)
 #
 #   # 2. For migration, copy BOTH files (tarball + .sha256) to the target. Example:
 #   scp ~/claude-code-backup-*.tar.gz*       newlaptop:~/   # plain
 #   scp ~/claude-code-backup-*.tar.gz.gpg*   newlaptop:~/   # encrypted
 #
-#   # 3. On a fresh target — pull the migrate script out of the tarball.
-#   #    If the script was invoked from a path other than ~/migrate-claude-code.sh
-#   #    on the source machine, its member path inside the tarball is the one
-#   #    from that machine. List the tarball first to confirm, then extract
-#   #    using the exact member path from the listing:
+#   # 3. On a fresh target, pull the migrate script out of the tarball.
+#   #    Steps 3-5 use the direct `./bin/migrate-claude-code.sh` form because
+#   #    the tarball ships only this one script, not the full repo clone;
+#   #    use the `./mac-setup.sh migrate-claude-code ...` router form once
+#   #    the clone is in place. The tarball member key is the path the
+#   #    source machine invoked the script from (for a repo clone, likely
+#   #    `bin/migrate-claude-code.sh`). List the tarball first to confirm,
+#   #    then extract using that exact path:
 #   #      tar -tzf claude-code-backup-*.tar.gz                   | grep migrate-claude-code   # plain
 #   #      gpg --decrypt claude-code-backup-*.tar.gz.gpg | tar -tzf - | grep migrate-claude-code   # encrypted
-#   tar -xzf claude-code-backup-*.tar.gz migrate-claude-code.sh                # plain
+#   tar -xzf claude-code-backup-*.tar.gz bin/migrate-claude-code.sh                # plain
 #   gpg --decrypt claude-code-backup-*.tar.gz.gpg \
-#     | tar -xzf - migrate-claude-code.sh                                      # encrypted
+#     | tar -xzf - bin/migrate-claude-code.sh                                      # encrypted
 #
-#   # 4. Dry-run — verifies the SHA256, extracts to a temp dir, runs checks.
+#   # 4. Dry-run verifies the SHA256, extracts to a temp dir, runs checks.
 #   #    Your real ~/.claude/ is untouched.
-#   ./migrate-claude-code.sh restore --dry-run claude-code-backup-*.tar.gz
+#   ./bin/migrate-claude-code.sh restore --dry-run claude-code-backup-*.tar.gz
 #
 #   # 5. If dry-run output looks right, restore for real. Any existing
 #   #    ~/.claude/ is first copied to ~/.claude.backup-YYYYMMDD-HHMMSS/.
-#   ./migrate-claude-code.sh restore claude-code-backup-*.tar.gz
+#   ./bin/migrate-claude-code.sh restore claude-code-backup-*.tar.gz
 #
 # The tarball contains this script itself (step 3 above), so one copied file is
 # enough to carry the whole restore. SHA256 is written by `backup` and
@@ -66,7 +72,7 @@
 #   ~/.claude/CLAUDE.md
 #   ~/.claude/guidance/
 #   ~/.claude/settings.json              (declares enabledPlugins +
-#                                         extraKnownMarketplaces — Claude Code
+#                                         extraKnownMarketplaces; Claude Code
 #                                         re-syncs plugins on first launch)
 #   ~/.claude/skills/
 #   ~/.claude/hooks/
@@ -95,7 +101,7 @@
 #   3. Confirm with `/plugin` that all enabled plugins show installed.
 #
 # Note: session transcripts can contain anything you or Claude saw during a
-# session — including pasted secrets, internal URLs, or sensitive content.
+# session, including pasted secrets, internal URLs, or sensitive content.
 # Treat the resulting tarball accordingly.
 
 set -euo pipefail
@@ -216,7 +222,7 @@ extract_tarball() {
 
 # --- Helpers ------------------------------------------------------------------
 usage() {
-  awk 'NR==1{next} /^set /{exit} {print}' "$0"
+  awk 'NR==1 { next } /^set / { exit } { sub(/^# ?/, ""); print }' "$0"
   exit "${1:-0}"
 }
 
