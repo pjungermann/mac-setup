@@ -3,11 +3,11 @@
 #
 # This is the "carry the gap" script. It pairs with two other tools:
 #
-#   pjungermann/mac-setup       Desired-state installer (Homebrew, chezmoi
-#                               dotfiles, mise runtimes, shell). Run FIRST
-#                               on the new laptop.
-#   ~/migrate-claude-code.sh    Claude Code memory, history, plugins. Run
-#                               AFTER this script.
+#   pjungermann/mac-setup               Desired-state installer (Homebrew,
+#                                       chezmoi dotfiles, mise runtimes,
+#                                       shell). Run FIRST on the new laptop.
+#   ./mac-setup.sh migrate-claude-code  Claude Code memory, history, plugins.
+#                                       Run AFTER this script.
 #
 # This script carries what the other two don't: secrets, per-tool auth
 # tokens, SSH / GPG keys, shell history, and an inventory of your current
@@ -16,55 +16,63 @@
 # THERE, not here.
 #
 # Usage:
-#   ./migrate-laptop.sh scan [--mac-setup <path>]           # read-only report
-#   ./migrate-laptop.sh export [--dry-run] [--yes] [--encrypt] [outfile]
-#   ./migrate-laptop.sh install [--dry-run] <tarball>
-#   ./migrate-laptop.sh verify [--root <path>]
-#   ./migrate-laptop.sh --help
+#   ./mac-setup.sh migrate-laptop scan [--mac-setup <path>]            # read-only report
+#   ./mac-setup.sh migrate-laptop export [--dry-run] [--yes] [--encrypt] [outfile]
+#   ./mac-setup.sh migrate-laptop install [--dry-run] <tarball>
+#   ./mac-setup.sh migrate-laptop verify [--root <path>]
+#   ./mac-setup.sh migrate-laptop --help
 #
-# Encryption (recommended — this bundle carries real secrets):
+# Direct invocation as `bin/migrate-laptop.sh <command> ...` works too; the
+# router form above is the one the README documents.
+#
+# Encryption (recommended, this bundle carries real secrets):
 #   `export --encrypt` streams the tar through `gpg -c` (AES-256 symmetric)
 #   and writes <tarball>.gpg instead of a plain tarball. The plaintext tar
 #   never touches disk. GPG prompts for a passphrase twice. `install`
 #   auto-detects the `.gpg` suffix. Requires `gpg` on PATH
 #   (macOS: `brew install gnupg`). Store the passphrase in a password
-#   manager — a lost passphrase makes the tarball unrecoverable.
+#   manager. A lost passphrase makes the tarball unrecoverable.
 #
 # End-to-end workflow:
 #
-#   # 1. On the OLD laptop — audit first, no files written.
-#   ./migrate-laptop.sh scan --mac-setup ~/workspaces/github/mac-setup
+#   # 1. On the OLD laptop, audit first; no files written.
+#   ./mac-setup.sh migrate-laptop scan --mac-setup ~/workspaces/github/mac-setup
 #
 #   # 2. Bundle. Writes two files beside each other:
 #   #      ~/laptop-migration-YYYYMMDD-HHMMSS.tar.gz(.gpg)
 #   #      ~/laptop-migration-YYYYMMDD-HHMMSS.tar.gz(.gpg).sha256
-#   ./migrate-laptop.sh export --encrypt
+#   ./mac-setup.sh migrate-laptop export --encrypt
 #
 #   # 3. Copy BOTH files to the new laptop (encrypted bundle recommended):
 #   scp ~/laptop-migration-*.tar.gz.gpg*   newlaptop:~/
 #
-#   # 4. On the NEW laptop — run mac-setup FIRST so brew + shell exist.
-#   #    Then pull this script out of the tarball and dry-run. If the source
-#   #    machine invoked this script from a path other than ~/migrate-laptop.sh,
-#   #    the tarball member key is that path. List it first to confirm:
+#   # 4. On the NEW laptop, run mac-setup FIRST so brew + shell exist.
+#   #    Then pull this script out of the tarball and dry-run. Steps 4-5
+#   #    use the direct `./bin/migrate-laptop.sh` form because the tarball
+#   #    ships only this one script, not the full repo clone; use the
+#   #    `./mac-setup.sh migrate-laptop ...` router form once the clone is
+#   #    in place. The tarball member key is the path the source machine
+#   #    invoked the script from (for a repo clone, likely
+#   #    `bin/migrate-laptop.sh`). List it first to confirm, then extract
+#   #    using that exact path:
 #   #      gpg --decrypt laptop-migration-*.tar.gz.gpg | tar -tzf - | grep migrate-laptop
 #   gpg --decrypt laptop-migration-*.tar.gz.gpg \
-#     | tar -xzf - migrate-laptop.sh
-#   ./migrate-laptop.sh install --dry-run laptop-migration-*.tar.gz.gpg
+#     | tar -xzf - bin/migrate-laptop.sh
+#   ./bin/migrate-laptop.sh install --dry-run laptop-migration-*.tar.gz.gpg
 #
 #   # 5. If the dry-run looks right, install for real. Existing files that
 #   #    would be overwritten are first copied to a .backup-YYYYMMDD-HHMMSS
 #   #    sibling path.
-#   ./migrate-laptop.sh install laptop-migration-*.tar.gz.gpg
+#   ./bin/migrate-laptop.sh install laptop-migration-*.tar.gz.gpg
 #
-#   # 6. Then run migrate-claude-code.sh install and walk the printed
-#   #    manual-steps checklist (1Password, iCloud, SSO, browser sign-ins,
-#   #    IDE Settings Sync, Time Machine, iMessage).
+#   # 6. Then run `./mac-setup.sh migrate-claude-code restore <tarball>`
+#   #    and walk the printed manual-steps checklist (1Password, iCloud,
+#   #    SSO, browser sign-ins, IDE Settings Sync, Time Machine, iMessage).
 #
 # What travels (each category exported only if present on the source laptop):
 #   SSH:         ~/.ssh/{config,known_hosts,authorized_keys,id_*,id_*.pub}
 #   GPG:         staged exports via `gpg --export`, `--export-secret-keys`,
-#                `--export-ownertrust` — NOT the live ~/.gnupg sockets.
+#                `--export-ownertrust`. NOT the live ~/.gnupg sockets.
 #   Shell/git:   ~/.zsh_history, ~/.bash_history, ~/.gitconfig.local,
 #                ~/.zshrc.local, ~/.zshenv.local, ~/.zprofile.local
 #   Reports:     reports/brew-leaves.txt, reports/brew-casks.txt,
@@ -74,7 +82,7 @@
 #                reports/brewfile-delta.txt (if --mac-setup was passed)
 #
 # What explicitly does NOT travel (and why):
-#   ~/.claude/              migrate-claude-code.sh owns this.
+#   ~/.claude/              `./mac-setup.sh migrate-claude-code` owns this.
 #   ~/.aws/                 Regenerated by your SSO flow (aws configure sso,
 #                           aws sso login, saml2aws, or an org-specific CLI).
 #   ~/.kube/                Rebuilt by your cluster auth tooling (aws eks
@@ -1042,7 +1050,7 @@ cmd_verify() {
 # Print the file's header comment block (everything above `set -euo pipefail`),
 # so the help text can grow without having to update line numbers here.
 print_help() {
-  awk 'NR==1 { next } /^set / { exit } { print }' "$0"
+  awk 'NR==1 { next } /^set / { exit } { sub(/^# ?/, ""); print }' "$0"
 }
 
 case "${1:-}" in
