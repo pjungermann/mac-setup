@@ -7,20 +7,32 @@ before changing anything; CI enforces several of them.
 
 `mac-setup` provisions a **fresh macOS install** from scratch to a working
 personal workstation, idempotently. The current laptop's state is out of
-scope; the goal is new-laptop setup and the ability to rerun as new tools
-are added over time.
+scope for the install flow; the goal is new-laptop setup and the ability
+to rerun as new tools are added over time.
+
+`mac-setup.sh` is a thin router that dispatches to a matching script
+under `bin/`:
+
+- `install-software` (default) performs the fresh-Mac install flow.
+- `migrate-laptop` and `migrate-claude-code` are backup / restore helpers
+  for the state the install flow cannot regenerate (SSH / GPG keys,
+  shell history, dotfile overlays, `~/.claude`). They never run as part
+  of install; the user invokes them on demand.
 
 ## Non-negotiables
 
 - **No company references** in tracked files. The repo is public and
   personal-first. Company-only tools live in `Brewfile.local`
   (gitignored) and work-only git config in a separate overlay.
-- **`~/.claude/` is out of scope.** A separate backup/restore script
-  owns Claude Code configuration, memory, and history. `mac-setup`
-  must not read, write, or template that directory.
-- **Everything idempotent.** Running `./mac-setup.sh` on an
-  already-provisioned machine must be a safe no-op or a controlled
-  update, never a destructive reinstall.
+- **`~/.claude/` is out of scope for `install-software`.** The install
+  flow must not read, write, or template that directory. Backup and
+  restore of Claude Code configuration, memory, and history is handled
+  by `bin/migrate-claude-code.sh` (reachable as
+  `./mac-setup.sh migrate-claude-code`), which the user runs on demand.
+- **Everything idempotent.** Running `./mac-setup.sh install-software`
+  (the default when no subcommand is passed) on an already-provisioned
+  machine must be a safe no-op or a controlled update, never a
+  destructive reinstall.
 
 ## Package manager priority
 
@@ -90,7 +102,26 @@ commitlint. See `.commitlintrc.json` for allowed `type-enum` and
 
 ## Bootstrap flow
 
-`mac-setup.sh` self-bootstraps when run as a single-file download: it
-fetches the full repo as a tarball (no git required), re-execs, and
-later converts the extracted dir to a real git clone after `brew
-bundle` installs git. Reruns are then plain `git pull && ./mac-setup.sh`.
+`mac-setup.sh` is a thin router. When invoked as a single-file download
+with the repo not yet present, it fetches the full repo as a tarball
+(no git required), re-execs, and dispatches to the chosen subcommand.
+The default subcommand is `install-software`, which later converts the
+extracted dir to a real git clone after `brew bundle` installs git.
+Reruns are then plain `git pull && ./mac-setup.sh`.
+
+## Subcommand dispatch
+
+`mac-setup.sh` recognises `install-software`, `migrate-laptop`, and
+`migrate-claude-code` as subcommands and `exec`s the matching
+`bin/<cmd>.sh`. No arguments defaults to `install-software`, preserving
+the pre-router UX.
+
+Every subcommand script is invokable directly from `bin/`
+(`./bin/<cmd>.sh …`); the router adds the subcommand UX, it does not
+gate access. `migrate-laptop.sh` and `migrate-claude-code.sh` are
+additionally self-contained enough for one-shot copies to a target
+machine (they verify their own SHA256 and GPG dependencies at run
+time). `install-software.sh` is not self-contained: it reads
+`$SCRIPT_DIR/bin/notes.sh`, `$SCRIPT_DIR/bin/brew-bundle.sh`, and the
+chezmoi source dir, so it only runs correctly from within a cloned
+(or tarball-bootstrapped) copy of this repo.
