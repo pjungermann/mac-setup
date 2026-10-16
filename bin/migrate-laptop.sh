@@ -44,7 +44,10 @@
 #   scp ~/laptop-migration-*.tar.gz.gpg*   newlaptop:~/
 #
 #   # 4. On the NEW laptop — run mac-setup FIRST so brew + shell exist.
-#   #    Then pull this script out of the tarball and dry-run:
+#   #    Then pull this script out of the tarball and dry-run. If the source
+#   #    machine invoked this script from a path other than ~/migrate-laptop.sh,
+#   #    the tarball member key is that path. List it first to confirm:
+#   #      gpg --decrypt laptop-migration-*.tar.gz.gpg | tar -tzf - | grep migrate-laptop
 #   gpg --decrypt laptop-migration-*.tar.gz.gpg \
 #     | tar -xzf - migrate-laptop.sh
 #   ./migrate-laptop.sh install --dry-run laptop-migration-*.tar.gz.gpg
