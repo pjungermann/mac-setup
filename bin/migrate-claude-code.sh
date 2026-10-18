@@ -71,18 +71,18 @@
 # What travels:
 #   ~/.claude/CLAUDE.md
 #   ~/.claude/guidance/
-#   ~/.claude/settings.json              (declares enabledPlugins +
-#                                         extraKnownMarketplaces; Claude Code
-#                                         re-syncs plugins on first launch)
-#   ~/.claude/skills/
+#   ~/.claude/history.jsonl              (global prompt history for /resume)
 #   ~/.claude/hooks/
-#   ~/.claude/plugins/data/              (per-plugin user state)
 #   ~/.claude/plugins/blocklist.json     (plugin block list)
+#   ~/.claude/plugins/data/              (per-plugin user state)
 #   ~/.claude/projects/                  (full tree: memory, MEMORY.md,
 #                                         *.jsonl session transcripts,
 #                                         and UUID session detail folders)
 #   ~/.claude/sessions/                  (global session index/state)
-#   ~/.claude/history.jsonl              (global prompt history for /resume)
+#   ~/.claude/settings.json              (declares enabledPlugins +
+#                                         extraKnownMarketplaces; Claude Code
+#                                         re-syncs plugins on first launch)
+#   ~/.claude/skills/
 #
 # What stays behind (machine-local, auth-bound, or regenerable):
 #   plugins/{marketplaces,cache,store,synced,installed_plugins.json,
