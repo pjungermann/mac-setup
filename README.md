@@ -69,7 +69,7 @@ widens the attack surface for no real time saving.
 
 Commands:
 
-1. `scan [--mac-setup <path>]`. Read-only report of what would travel. Homebrew leaves and casks, mas apps, SSH and GPG keys, workspace repos (with highlights for anything with uncommitted or unpushed work), cloud / CLI auth that will need re-logging on the new laptop, and a Brewfile delta if `--mac-setup` points at this repo.
+1. `scan`. Read-only report of what would travel. Homebrew leaves and casks, mas apps, SSH and GPG keys, workspace repos (with highlights for anything with uncommitted or unpushed work), cloud / CLI auth that will need re-logging on the new laptop, and a Brewfile delta against the Brewfile in the mac-setup clone this script runs from.
 2. `export [--dry-run] [--yes] [--encrypt] [outfile]`. Writes a tar.gz plus `.sha256` sidecar with SSH keys and config, GPG keyring exports (public and secret keys plus ownertrust), shell history, `*.local` dotfile overlays, and the scan reports. The bundle carries real secrets; `--encrypt` streams the tar through `gpg -c` (AES-256 symmetric) so the plaintext tar never touches disk.
 3. `install [--dry-run] <tarball>`. On the new laptop. Verifies the SHA256 fail-closed and extracts into `$HOME`. Any pre-existing collision (for example `~/.ssh`) is moved to a timestamped `.backup-<stamp>/` sibling before the bundled copy is placed, so first-boot `known_hosts` entries you accumulated between fresh-OS and restore are preserved in the backup rather than merged.
 4. `verify [--root <path>]`. Lists what the restore placed and what is still missing.

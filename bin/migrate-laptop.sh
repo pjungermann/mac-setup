@@ -16,7 +16,7 @@
 # THERE, not here.
 #
 # Usage:
-#   ./mac-setup.sh migrate-laptop scan [--mac-setup <path>]            # read-only report
+#   ./mac-setup.sh migrate-laptop scan                                 # read-only report
 #   ./mac-setup.sh migrate-laptop export [--dry-run] [--yes] [--encrypt] [outfile]
 #   ./mac-setup.sh migrate-laptop install [--dry-run] <tarball>
 #   ./mac-setup.sh migrate-laptop verify [--root <path>]
@@ -36,7 +36,7 @@
 # End-to-end workflow:
 #
 #   1. On the OLD laptop, audit first; no files written.
-#      ./mac-setup.sh migrate-laptop scan --mac-setup ~/workspaces/github/mac-setup
+#      ./mac-setup.sh migrate-laptop scan
 #
 #   2. Bundle. Writes two files beside each other:
 #        ~/laptop-migration-YYYYMMDD-HHMMSS.tar.gz(.gpg)
@@ -79,7 +79,8 @@
 #                reports/mas-list.txt, reports/vscode-extensions.txt,
 #                reports/jetbrains-apps.txt, reports/workspaces.tsv,
 #                reports/fonts.txt, reports/launchagents.txt,
-#                reports/brewfile-delta.txt (if --mac-setup was passed)
+#                reports/brewfile-delta.txt (if the mac-setup clone this
+#                script runs from has a Brewfile)
 #
 # What explicitly does NOT travel (and why):
 #   ~/.claude/              `./mac-setup.sh migrate-claude-code` owns this.
@@ -112,6 +113,22 @@
 set -euo pipefail
 
 SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+
+# Repo root of the mac-setup clone this script lives in. Used only to locate
+# a Brewfile for the brew-delta report. Set to the empty string when the
+# script is not running from inside a mac-setup clone (e.g. extracted from
+# a bundle on a bare laptop, or symlinked out of its home), so the delta
+# section is quietly skipped. The `mac-setup.sh` sibling check guards
+# against a symlinked script picking up an unrelated Brewfile that happens
+# to sit at the inferred parent dir.
+_mac_setup_candidate="$(cd "$(dirname "${SCRIPT_PATH}")/.." && pwd -P)"
+if [ -f "${_mac_setup_candidate}/Brewfile" ] \
+   && [ -f "${_mac_setup_candidate}/mac-setup.sh" ]; then
+  MAC_SETUP_ROOT="${_mac_setup_candidate}"
+else
+  MAC_SETUP_ROOT=""
+fi
+unset _mac_setup_candidate
 
 # --- Catalog ------------------------------------------------------------------
 # Paths under $HOME that travel verbatim (file or dir). Only entries that
@@ -492,10 +509,8 @@ scan_shell_history() {
 
 # --- Commands -----------------------------------------------------------------
 cmd_scan() {
-  local mac_setup=""
   while [ $# -gt 0 ]; do
     case "$1" in
-      --mac-setup) mac_setup="$2"; shift 2 ;;
       --) shift; break ;;
       -*) echo "unknown flag: $1" >&2; exit 1 ;;
       *)  break ;;
@@ -507,8 +522,8 @@ cmd_scan() {
 
   scan_brew
   scan_mas
-  if [ -n "${mac_setup}" ]; then
-    scan_brewfile_delta "${mac_setup%/}/Brewfile"
+  if [ -n "${MAC_SETUP_ROOT}" ]; then
+    scan_brewfile_delta "${MAC_SETUP_ROOT}/Brewfile"
   fi
   scan_ssh_keys
   scan_gpg_keys
@@ -691,13 +706,12 @@ stage_reports() {
 }
 
 cmd_export() {
-  local assume_yes=0 encrypt=0 dry_run=0 mac_setup=""
+  local assume_yes=0 encrypt=0 dry_run=0
   while [ $# -gt 0 ]; do
     case "$1" in
       --dry-run)   dry_run=1; shift ;;
       --yes|-y)    assume_yes=1; shift ;;
       --encrypt)   encrypt=1; shift ;;
-      --mac-setup) mac_setup="$2"; shift 2 ;;
       --)          shift; break ;;
       -*)          echo "unknown flag: $1" >&2; exit 1 ;;
       *)           break ;;
@@ -751,7 +765,7 @@ cmd_export() {
   if [ "${dry_run}" -eq 1 ]; then
     echo "Would also include (not invoked during dry-run — these are read-only"
     echo "estimates based on what's installed; size not counted below):"
-    describe_staging "${mac_setup%/}"
+    describe_staging "${MAC_SETUP_ROOT}"
     echo
 
     local approx_kb=0 n rel
@@ -775,7 +789,7 @@ cmd_export() {
   # From here on this is the real run. Stage GPG material + reports now
   # (not before dry-run — see note above).
   stage_gpg_exports "${stage}"
-  stage_reports     "${stage}" "${mac_setup%/}"
+  stage_reports     "${stage}" "${MAC_SETUP_ROOT}"
 
   echo "Plus staged artifacts (not in \$HOME, extracted to the bundle root):"
   (cd "${stage}" && find gpg reports -type f 2>/dev/null | while read -r f; do
