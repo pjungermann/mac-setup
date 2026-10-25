@@ -16,11 +16,17 @@
 # THERE, not here.
 #
 # Usage:
+#   ./mac-setup.sh migrate-laptop wizard                               # interactive end-to-end (recommended)
 #   ./mac-setup.sh migrate-laptop scan                                 # read-only report
 #   ./mac-setup.sh migrate-laptop export [--dry-run] [--yes] [--encrypt] [outfile]
 #   ./mac-setup.sh migrate-laptop install [--dry-run] <tarball>
 #   ./mac-setup.sh migrate-laptop verify [--root <path>]
 #   ./mac-setup.sh migrate-laptop --help
+#
+# `wizard` walks the whole flow interactively on either laptop (it detects
+# the side from presence of a migration tarball nearby, or asks). The other
+# subcommands are the atomic building blocks the wizard calls into, and
+# stay usable on their own.
 #
 # Direct invocation as `bin/migrate-laptop.sh <command> ...` works too; the
 # router form above is the one the README documents.
@@ -1040,6 +1046,244 @@ cmd_verify() {
   [ "${miss}" -eq 0 ]
 }
 
+# --- Interactive wizard helpers ----------------------------------------------
+# Minimal prompt helpers. Keep answers off argv so the wizard's atomic
+# cmd_* callees never see them. All three honour MIGRATE_WIZARD_YES=1 for
+# non-interactive invocations (CI, scripted runs); default to interactive.
+
+prompt_yes_no() {
+  local msg="$1" default="${2:-y}" ans hint="[Y/n]"
+  [ "${default}" = "n" ] && hint="[y/N]"
+  if [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+    [ "${default}" = "y" ]; return
+  fi
+  while :; do
+    printf '%s %s ' "${msg}" "${hint}"
+    if ! IFS= read -r ans; then
+      # EOF on stdin: fall through to the declared default. Returning 1
+      # here would conflate EOF with "no", which is wrong for default-y
+      # security prompts (e.g. "Encrypt the bundle?" — a piped stdin that
+      # happens to close must not silently disable encryption).
+      [ "${default}" = "y" ]; return
+    fi
+    [ -z "${ans}" ] && ans="${default}"
+    case "${ans}" in
+      [Yy]|[Yy][Ee][Ss]) return 0 ;;
+      [Nn]|[Nn][Oo])     return 1 ;;
+    esac
+  done
+}
+
+prompt_enter() {
+  local msg="$1" _junk
+  if [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+    return 0
+  fi
+  printf '%s ' "${msg}"
+  IFS= read -r _junk || true
+}
+
+# Find migration-tarball candidates in $HOME and CWD; print one per line.
+# `pattern` is a glob like 'laptop-migration-*.tar.gz*'.
+find_tarballs() {
+  local pattern="$1" dir f
+  for dir in "${HOME}" "${PWD}"; do
+    for f in "${dir}"/${pattern}; do
+      case "${f}" in
+        *.sha256)                   continue ;;
+        *"/${pattern}")             continue ;;  # literal glob, no match
+      esac
+      [ -f "${f}" ] && printf '%s\n' "${f}"
+    done
+  done | sort -u
+}
+
+cmd_wizard() {
+  local side=""
+  local -a tarballs=()
+  while IFS= read -r line; do
+    [ -n "${line}" ] && tarballs+=("${line}")
+  done < <(find_tarballs 'laptop-migration-*.tar.gz*')
+
+  if [ "${#tarballs[@]}" -gt 0 ]; then
+    echo "Found a migration tarball nearby:"
+    printf '  %s\n' "${tarballs[@]}"
+    echo
+    if prompt_yes_no "Treat this machine as the TARGET (new) laptop?" y; then
+      side="target"
+    else
+      side="source"
+    fi
+  elif [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+    case "${MIGRATE_WIZARD_SIDE:-}" in
+      source|target) side="${MIGRATE_WIZARD_SIDE}" ;;
+      *) echo "error: no migration tarball found nearby; set MIGRATE_WIZARD_SIDE=source|target for unattended runs" >&2
+         return 1 ;;
+    esac
+  else
+    echo "Laptop-migration wizard."
+    echo "  1) Source (OLD) laptop — the one you're migrating from"
+    echo "  2) Target (NEW) laptop — the one you're migrating to"
+    local ans
+    while :; do
+      printf 'Pick 1 or 2: '
+      IFS= read -r ans || return 1
+      case "${ans}" in
+        1) side="source"; break ;;
+        2) side="target"; break ;;
+      esac
+    done
+  fi
+
+  if [ "${side}" = "source" ]; then
+    wizard_source
+  elif [ "${#tarballs[@]}" -gt 0 ]; then
+    wizard_target "${tarballs[@]}"
+  else
+    wizard_target
+  fi
+}
+
+wizard_source() {
+  echo
+  echo "=== Step 1/6: Scan (OLD laptop) ==="
+  echo "Read-only audit of what would travel. Nothing is written."
+  prompt_enter "Press Enter to run the scan."
+  cmd_scan
+  echo
+  if ! prompt_yes_no "Scan looks right? Continue to export?" y; then
+    echo "Aborted. Rerun 'migrate-laptop wizard' any time."
+    return 0
+  fi
+
+  echo
+  echo "=== Step 2/6: Export (OLD laptop) ==="
+  local encrypt=0
+  if prompt_yes_no "Encrypt the bundle? Recommended; it carries real secrets." y; then
+    encrypt=1
+  fi
+  prompt_enter "Press Enter to run the export (gpg will prompt for a passphrase if --encrypt)."
+  if [ "${encrypt}" -eq 1 ]; then
+    cmd_export --encrypt
+  else
+    cmd_export
+  fi
+  echo
+
+  echo
+  echo "=== Step 3/6: Transfer to the NEW laptop ==="
+  echo "Copy BOTH files (tarball + .sha256) to the new laptop. Example:"
+  echo "    scp ~/laptop-migration-*.tar.gz* <newlaptop>:~/"
+  echo
+  echo "Then on the new laptop:"
+  echo "  1. Run the fresh-Mac bootstrap so brew + shell + the clone exist:"
+  echo "       curl -fsSL https://raw.githubusercontent.com/pjungermann/mac-setup/main/mac-setup.sh -o mac-setup.sh"
+  echo "       chmod +x mac-setup.sh"
+  echo "       ./mac-setup.sh"
+  echo "  2. Rerun this wizard from the clone:"
+  echo "       cd ~/mac-setup && ./mac-setup.sh migrate-laptop wizard"
+  echo
+  echo "The wizard on the new laptop will detect the tarball and pick up at step 4."
+  echo "This source-side wizard is done."
+}
+
+wizard_target() {
+  local tarball=""
+
+  if [ "$#" -eq 1 ]; then
+    tarball="$1"
+    echo "Using tarball: ${tarball}"
+    if ! prompt_yes_no "Use this one?" y; then
+      tarball=""
+    fi
+  elif [ "$#" -gt 1 ]; then
+    local -a opts=("$@")
+    echo "Multiple candidate tarballs:"
+    local i=1 c
+    for c in "${opts[@]}"; do
+      printf '  %d) %s\n' "${i}" "${c}"
+      i=$((i+1))
+    done
+    if [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+      tarball="${opts[0]}"
+      echo "unattended mode: auto-picking the first candidate (${tarball})"
+    else
+      local n
+      while :; do
+        printf 'Pick [1-%d]: ' "${#opts[@]}"
+        IFS= read -r n || return 1
+        case "${n}" in
+          ''|*[!0-9]*) continue ;;
+        esac
+        if [ "${n}" -ge 1 ] && [ "${n}" -le "${#opts[@]}" ]; then
+          tarball="${opts[$((n-1))]}"
+          break
+        fi
+      done
+    fi
+  fi
+
+  while [ -z "${tarball}" ] || [ ! -f "${tarball}" ]; do
+    if [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+      echo "error: no migration tarball found and MIGRATE_WIZARD_YES is set; pass the path interactively or place the tarball under \$HOME" >&2
+      return 1
+    fi
+    printf 'Path to the migration tarball: '
+    IFS= read -r tarball || return 1
+    # Keep the tilde quoted so it stays literal in the case pattern (we
+    # want to match a user-typed ~, not do tilde expansion in the pattern).
+    # shellcheck disable=SC2088
+    case "${tarball}" in
+      "~/"*) tarball="${HOME}/${tarball#~/}" ;;
+    esac
+  done
+
+  echo
+  echo "=== Step 4/6: Install dry-run (NEW laptop) ==="
+  echo "Verifies the SHA256 and extracts to a temp dir. \$HOME is untouched."
+  prompt_enter "Press Enter to run the dry-run."
+  cmd_install --dry-run "${tarball}"
+  echo
+  if ! prompt_yes_no "Dry-run looks right? Continue to the real install?" y; then
+    echo "Aborted. Rerun 'migrate-laptop wizard' any time."
+    return 0
+  fi
+
+  echo
+  echo "=== Step 5/6: Install (NEW laptop) ==="
+  echo "Any colliding files are first copied to .backup-YYYYMMDD-HHMMSS siblings."
+  prompt_enter "Press Enter to install for real."
+  cmd_install "${tarball}"
+  echo
+
+  echo
+  echo "=== Step 6/6: Hand-off and manual steps ==="
+  local line
+  local -a cc_tarballs=()
+  while IFS= read -r line; do
+    [ -n "${line}" ] && cc_tarballs+=("${line}")
+  done < <(find_tarballs 'claude-code-backup-*.tar.gz*')
+  if [ "${#cc_tarballs[@]}" -gt 0 ]; then
+    echo "Found a Claude Code backup nearby:"
+    printf '  %s\n' "${cc_tarballs[@]}"
+    echo "Restore it with:"
+    echo "    ./mac-setup.sh migrate-claude-code restore ${cc_tarballs[0]}"
+  else
+    echo "No Claude Code backup detected in \$HOME or \$PWD."
+    echo "If you created one on the OLD laptop, copy it over and run:"
+    echo "    ./mac-setup.sh migrate-claude-code restore <tarball>"
+  fi
+
+  echo
+  echo "Laptop migration finished. The scriptable part is done."
+  echo "Manual steps still to do (not scriptable):"
+  echo "  - 1Password unlock + verify SSH agent"
+  echo "  - iCloud / Apple ID (Messages, Photos, Keychain restore)"
+  echo "  - Browser profiles sign-in (Chrome / Firefox / Arc sync)"
+  echo "  - SSO flows your org CLI doesn't automate"
+  echo "  - Time Machine first backup"
+}
+
 # Print the file's header comment block (everything above `set -euo pipefail`),
 # so the help text can grow without having to update line numbers here.
 print_help() {
@@ -1047,6 +1291,7 @@ print_help() {
 }
 
 case "${1:-}" in
+  wizard)   shift; cmd_wizard "$@" ;;
   scan)     shift; cmd_scan "$@" ;;
   export)   shift; cmd_export "$@" ;;
   install)  shift; cmd_install "$@" ;;
