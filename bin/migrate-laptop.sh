@@ -62,8 +62,8 @@
 #      ./mac-setup.sh migrate-laptop install laptop-migration-*.tar.gz.gpg
 #
 #   6. Then run `./mac-setup.sh migrate-claude-code restore <tarball>`
-#      and walk the printed manual-steps checklist (1Password, iCloud,
-#      SSO, browser sign-ins, IDE Settings Sync, Time Machine, iMessage).
+#      and walk the printed manual-steps checklist (password manager,
+#      cloud identity, browser sync, SSO, IDE settings sync, backups).
 #
 # What travels (each category exported only if present on the source laptop):
 #   GPG:         staged exports via `gpg --export`, `--export-secret-keys`,
@@ -95,9 +95,9 @@
 #                           etc.) are refreshed by their respective CLIs;
 #                           non-token settings have been empty on inspection.
 #   Brewfile-managed state  mac-setup reinstalls it from the Brewfile.
-#   Browser profiles        Use the browser's own sync (Chrome / Firefox / Arc).
+#   Browser profiles        Use whatever sync your browser offers.
 #   chezmoi-managed dotfiles  mac-setup lays them down fresh.
-#   Keychain, Messages, Photos  iCloud restores these.
+#   Keychain, Messages, Photos  Rely on your cloud sync to restore (iCloud, if enabled).
 #   MDM-pushed app state    IT handles reprovisioning.
 #   node_modules, .venv, caches, build artifacts  Regenerable.
 #   Workspace repos themselves  reports/workspaces.tsv lists them; re-clone.
@@ -990,13 +990,16 @@ cmd_install() {
      the Brewfile (public) or Brewfile.local (private), then re-run
      mac-setup to install.
   4. Walk reports/vscode-extensions.txt and reports/jetbrains-apps.txt
-     against your IDE Settings Sync; install anything missing.
+     against your IDE's own sync (if any); install anything missing.
   5. Manual sign-ins the script cannot carry:
-       - 1Password (unlock, verify SSH agent)
-       - iCloud / Apple ID (Messages, Photos, Keychain restore)
-       - Browser profiles (Chrome / Firefox / Arc sync)
+       - Password manager unlock + SSH agent integration
+         (e.g. 1Password, Bitwarden)
+       - Cloud identity sign-in and per-service restores if applicable
+         (e.g. iCloud for Messages / Photos / Keychain)
+       - Browser profile / sync sign-in (whichever browsers you use)
        - Any SSO not scripted by your org CLI
-       - Time Machine first backup
+       - First full backup (e.g. Time Machine, Carbon Copy Cloner,
+         Backblaze)
   6. Finally: ./mac-setup.sh migrate-claude-code restore <claude-tarball>
 EOF
 }
@@ -1287,11 +1290,14 @@ wizard_target() {
   echo
   echo "Laptop migration finished. The scriptable part is done."
   echo "Manual steps still to do (not scriptable):"
-  echo "  - 1Password unlock + verify SSH agent"
-  echo "  - iCloud / Apple ID (Messages, Photos, Keychain restore)"
-  echo "  - Browser profiles sign-in (Chrome / Firefox / Arc sync)"
+  echo "  - Password manager unlock + SSH agent integration"
+  echo "    (e.g. 1Password, Bitwarden)"
+  echo "  - Cloud identity sign-in and per-service restores if applicable"
+  echo "    (e.g. iCloud for Messages / Photos / Keychain)"
+  echo "  - Browser profile / sync sign-in (whichever browsers you use)"
   echo "  - SSO flows your org CLI doesn't automate"
-  echo "  - Time Machine first backup"
+  echo "  - First full backup (e.g. Time Machine, Carbon Copy Cloner,"
+  echo "    Backblaze)"
 }
 
 # Print the file's header comment block (everything above `set -euo pipefail`),
