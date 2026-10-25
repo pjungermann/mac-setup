@@ -42,31 +42,16 @@
 #      scp ~/claude-code-backup-*.tar.gz*       newlaptop:~/   # plain
 #      scp ~/claude-code-backup-*.tar.gz.gpg*   newlaptop:~/   # encrypted
 #
-#   3. On a fresh target, pull the migrate script out of the tarball.
-#      Steps 3-5 use the direct `./bin/migrate-claude-code.sh` form because
-#      the tarball ships only this one script, not the full repo clone;
-#      use the `./mac-setup.sh migrate-claude-code ...` router form once
-#      the clone is in place. The tarball member key is the path the
-#      source machine invoked the script from (for a repo clone, likely
-#      `bin/migrate-claude-code.sh`). List the tarball first to confirm,
-#      then extract using that exact path:
-#        tar -tzf claude-code-backup-*.tar.gz                   | grep migrate-claude-code   # plain
-#        gpg --decrypt claude-code-backup-*.tar.gz.gpg | tar -tzf - | grep migrate-claude-code   # encrypted
-#        tar -xzf claude-code-backup-*.tar.gz bin/migrate-claude-code.sh                # plain
-#        gpg --decrypt claude-code-backup-*.tar.gz.gpg \
-#          | tar -xzf - bin/migrate-claude-code.sh                                      # encrypted
+#   3. On the target, make sure the mac-setup clone is in place (run
+#      the fresh-Mac bootstrap first if this is a new laptop). Then
+#      dry-run against the clone:
+#      ./mac-setup.sh migrate-claude-code restore --dry-run claude-code-backup-*.tar.gz
 #
-#   4. Dry-run verifies the SHA256, extracts to a temp dir, runs checks.
-#      Your real ~/.claude/ is untouched.
-#      ./bin/migrate-claude-code.sh restore --dry-run claude-code-backup-*.tar.gz
-#
-#   5. If dry-run output looks right, restore for real. Any existing
+#   4. If dry-run output looks right, restore for real. Any existing
 #      ~/.claude/ is first copied to ~/.claude.backup-YYYYMMDD-HHMMSS/.
-#      ./bin/migrate-claude-code.sh restore claude-code-backup-*.tar.gz
+#      ./mac-setup.sh migrate-claude-code restore claude-code-backup-*.tar.gz
 #
-# The tarball contains this script itself (step 3 above), so one copied file is
-# enough to carry the whole restore. SHA256 is written by `backup` and
-# verified by `restore` before any extraction.
+# SHA256 is written by `backup` and verified by `restore` before any extraction.
 #
 # What travels:
 #   ~/.claude/CLAUDE.md
@@ -106,7 +91,6 @@
 
 set -euo pipefail
 
-SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 CLAUDE_DIR="${HOME}/.claude"
 PROJECTS_DIR="${CLAUDE_DIR}/projects"
 PLUGINS_DIR="${CLAUDE_DIR}/plugins"
@@ -300,17 +284,6 @@ check_drift() {
 build_file_list() {
   cd "${HOME}"
 
-  # Pure-bash $HOME-prefix strip. Avoids `realpath --relative-to` (GNU only)
-  # and python3 (would trigger the Xcode Command Line Tools install dialog
-  # on a bare macOS laptop that has not yet had `xcode-select --install`).
-  local self_rel=""
-  case "${SCRIPT_PATH}" in
-    "${HOME}/"*) self_rel="${SCRIPT_PATH#"${HOME}/"}" ;;
-  esac
-  if [ -n "${self_rel}" ] && [ -e "${self_rel}" ]; then
-    printf '%s\n' "${self_rel}"
-  fi
-
   for entry in \
     ".claude/CLAUDE.md" \
     ".claude/guidance" \
@@ -407,11 +380,12 @@ cmd_backup() {
   echo "Wrote ${outfile} (${size})."
   echo "Wrote ${sumfile}"
   echo
-  echo "Copy both files to the new laptop (same directory), then run:"
-  echo "  ./migrate-claude-code.sh restore \"$(basename "${outfile}")\""
+  echo "Copy both files to the target machine. On a fresh laptop, run the"
+  echo "mac-setup bootstrap first. Then, from inside the clone:"
+  echo "  ./mac-setup.sh migrate-claude-code restore \"$(basename "${outfile}")\""
   echo
   echo "Optional: dry-run first to confirm the bundle before touching ~/.claude/:"
-  echo "  ./migrate-claude-code.sh restore --dry-run \"$(basename "${outfile}")\""
+  echo "  ./mac-setup.sh migrate-claude-code restore --dry-run \"$(basename "${outfile}")\""
 }
 
 cmd_restore() {

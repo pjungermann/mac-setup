@@ -46,24 +46,14 @@
 #   3. Copy BOTH files to the new laptop (encrypted bundle recommended):
 #      scp ~/laptop-migration-*.tar.gz.gpg*   newlaptop:~/
 #
-#   4. On the NEW laptop, run mac-setup FIRST so brew + shell exist.
-#      Then pull this script out of the tarball and dry-run. Steps 4-5
-#      use the direct `./bin/migrate-laptop.sh` form because the tarball
-#      ships only this one script, not the full repo clone; use the
-#      `./mac-setup.sh migrate-laptop ...` router form once the clone is
-#      in place. The tarball member key is the path the source machine
-#      invoked the script from (for a repo clone, likely
-#      `bin/migrate-laptop.sh`). List it first to confirm, then extract
-#      using that exact path:
-#        gpg --decrypt laptop-migration-*.tar.gz.gpg | tar -tzf - | grep migrate-laptop
-#        gpg --decrypt laptop-migration-*.tar.gz.gpg \
-#          | tar -xzf - bin/migrate-laptop.sh
-#        ./bin/migrate-laptop.sh install --dry-run laptop-migration-*.tar.gz.gpg
+#   4. On the NEW laptop, run mac-setup FIRST so brew + shell exist and
+#      the full repo clone is in place. Then dry-run against the clone:
+#      ./mac-setup.sh migrate-laptop install --dry-run laptop-migration-*.tar.gz.gpg
 #
 #   5. If the dry-run looks right, install for real. Existing files that
 #      would be overwritten are first copied to a .backup-YYYYMMDD-HHMMSS
 #      sibling path.
-#      ./bin/migrate-laptop.sh install laptop-migration-*.tar.gz.gpg
+#      ./mac-setup.sh migrate-laptop install laptop-migration-*.tar.gz.gpg
 #
 #   6. Then run `./mac-setup.sh migrate-claude-code restore <tarball>`
 #      and walk the printed manual-steps checklist (1Password, iCloud,
@@ -542,19 +532,7 @@ cmd_scan() {
 
 # Build the list of real files to tar. Writes to a passed-in file list path.
 build_file_list() {
-  local listfile="$1" entry key self_rel
-
-  # Script itself (so one scp'd tarball carries the install tool). Compute
-  # the $HOME-relative path with pure bash string ops — avoids a python3
-  # dependency that would trigger macOS's Command Line Tools install dialog
-  # on a laptop where CLT hasn't been installed yet.
-  self_rel=""
-  case "${SCRIPT_PATH}" in
-    "${HOME}/"*) self_rel="${SCRIPT_PATH#"${HOME}/"}" ;;
-  esac
-  if [ -n "${self_rel}" ] && [ -e "${HOME}/${self_rel}" ]; then
-    printf '%s\n' "${self_rel}" >> "${listfile}"
-  fi
+  local listfile="$1" entry key
 
   for entry in "${TRAVEL_PATHS[@]}"; do
     if [ -e "${HOME}/${entry}" ]; then
@@ -839,9 +817,10 @@ cmd_export() {
   echo "Wrote ${outfile} (${size})."
   echo "Wrote ${sumfile}"
   echo
-  echo "Copy both files to the new laptop (same directory), then:"
-  echo "  ./migrate-laptop.sh install --dry-run \"$(basename "${outfile}")\""
-  echo "  ./migrate-laptop.sh install \"$(basename "${outfile}")\""
+  echo "Copy both files to the new laptop (same directory). After the"
+  echo "mac-setup bootstrap finishes there, from inside the clone:"
+  echo "  ./mac-setup.sh migrate-laptop install --dry-run \"$(basename "${outfile}")\""
+  echo "  ./mac-setup.sh migrate-laptop install \"$(basename "${outfile}")\""
 }
 
 # Apply correct POSIX perms to key material after extraction. Only touches
@@ -1012,7 +991,7 @@ cmd_install() {
        - Browser profiles (Chrome / Firefox / Arc sync)
        - Any SSO not scripted by your org CLI
        - Time Machine first backup
-  6. Finally: ./migrate-claude-code.sh restore <claude-tarball>
+  6. Finally: ./mac-setup.sh migrate-claude-code restore <claude-tarball>
 EOF
 }
 
