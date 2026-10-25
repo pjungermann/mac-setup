@@ -1266,12 +1266,22 @@ wizard_target() {
   if [ "${#cc_tarballs[@]}" -gt 0 ]; then
     echo "Found a Claude Code backup nearby:"
     printf '  %s\n' "${cc_tarballs[@]}"
-    echo "Restore it with:"
-    echo "    ./mac-setup.sh migrate-claude-code restore ${cc_tarballs[0]}"
+    if prompt_yes_no "Hand off to 'migrate-claude-code wizard' to restore it now?" y; then
+      # exec only when we can locate the router. MAC_SETUP_ROOT is empty
+      # when the script is running outside a mac-setup clone (extracted
+      # from a bundle, symlinked out of its home) — in that case the
+      # router path would resolve to "/mac-setup.sh" and `exec` would
+      # replace the process with a hard crash.
+      if [ -n "${MAC_SETUP_ROOT}" ] && [ -x "${MAC_SETUP_ROOT}/mac-setup.sh" ]; then
+        exec "${MAC_SETUP_ROOT}/mac-setup.sh" migrate-claude-code wizard
+      fi
+      echo "mac-setup clone not detected; run this from inside the clone:"
+      echo "    ./mac-setup.sh migrate-claude-code wizard"
+    fi
   else
     echo "No Claude Code backup detected in \$HOME or \$PWD."
     echo "If you created one on the OLD laptop, copy it over and run:"
-    echo "    ./mac-setup.sh migrate-claude-code restore <tarball>"
+    echo "    ./mac-setup.sh migrate-claude-code wizard"
   fi
 
   echo

@@ -7,11 +7,16 @@
 #   - Migrating between laptops
 #
 # Usage:
+#   ./mac-setup.sh migrate-claude-code wizard                               # interactive end-to-end (recommended)
 #   ./mac-setup.sh migrate-claude-code backup  [--yes] [--encrypt] [outfile]  # bundle state
 #   ./mac-setup.sh migrate-claude-code restore [--dry-run] <tarball>          # extract into ~/.claude
 #   ./mac-setup.sh migrate-claude-code verify  [--root <path>]                # check installed state
 #   ./mac-setup.sh migrate-claude-code list                                   # project memory dirs
 #   ./mac-setup.sh migrate-claude-code --help
+#
+# `wizard` picks backup vs restore based on whether a backup tarball sits
+# nearby, and walks the flow interactively. The other subcommands are the
+# atomic building blocks it calls into, and stay usable on their own.
 #
 # Direct invocation as `bin/migrate-claude-code.sh <command> ...` works too;
 # the router form above is the one the README documents.
@@ -609,7 +614,221 @@ cmd_list() {
   done
 }
 
+# --- Interactive wizard -------------------------------------------------------
+# Mirrors the shape of bin/migrate-laptop.sh's wizard: a single `wizard`
+# subcommand that picks "backup" vs "restore" from whether a Claude Code
+# backup tarball sits in $HOME or $PWD, prompts for the few choices the
+# user actually makes (encrypt / confirm the dry-run / etc), and drives
+# the atomic cmd_backup / cmd_restore / cmd_verify calls underneath.
+#
+# Unattended mode: MIGRATE_WIZARD_YES=1 collapses y/n prompts to their
+# declared default. When no tarball is nearby and no side can be inferred,
+# MIGRATE_WIZARD_MODE=backup|restore picks explicitly; otherwise the
+# wizard errors out rather than hanging on a tty read.
+
+prompt_yes_no() {
+  local msg="$1" default="${2:-y}" ans hint="[Y/n]"
+  [ "${default}" = "n" ] && hint="[y/N]"
+  if [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+    [ "${default}" = "y" ]; return
+  fi
+  while :; do
+    printf '%s %s ' "${msg}" "${hint}"
+    if ! IFS= read -r ans; then
+      # EOF: fall through to the declared default (safer than returning
+      # 1, which would conflate EOF with "no" for default-y security
+      # prompts like "Encrypt the bundle?").
+      [ "${default}" = "y" ]; return
+    fi
+    [ -z "${ans}" ] && ans="${default}"
+    case "${ans}" in
+      [Yy]|[Yy][Ee][Ss]) return 0 ;;
+      [Nn]|[Nn][Oo])     return 1 ;;
+    esac
+  done
+}
+
+prompt_enter() {
+  local msg="$1" _junk
+  if [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+    return 0
+  fi
+  printf '%s ' "${msg}"
+  IFS= read -r _junk || true
+}
+
+find_tarballs() {
+  local pattern="$1" dir f
+  for dir in "${HOME}" "${PWD}"; do
+    for f in "${dir}"/${pattern}; do
+      case "${f}" in
+        *.sha256)        continue ;;
+        *"/${pattern}")  continue ;;  # literal glob, no match
+      esac
+      [ -f "${f}" ] && printf '%s\n' "${f}"
+    done
+  done | sort -u
+}
+
+cmd_wizard() {
+  local mode="" line
+  local -a tarballs=()
+  while IFS= read -r line; do
+    [ -n "${line}" ] && tarballs+=("${line}")
+  done < <(find_tarballs 'claude-code-backup-*.tar.gz*')
+
+  if [ "${#tarballs[@]}" -gt 0 ]; then
+    echo "Found a Claude Code backup nearby:"
+    printf '  %s\n' "${tarballs[@]}"
+    echo
+    if prompt_yes_no "Restore from this tarball?" y; then
+      mode="restore"
+    else
+      mode="backup"
+    fi
+  elif [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+    case "${MIGRATE_WIZARD_MODE:-}" in
+      backup|restore) mode="${MIGRATE_WIZARD_MODE}" ;;
+      *) echo "error: no Claude Code backup found nearby; set MIGRATE_WIZARD_MODE=backup|restore for unattended runs" >&2
+         return 1 ;;
+    esac
+  else
+    echo "Claude Code migration wizard."
+    echo "  1) Backup — bundle ~/.claude state from this machine"
+    echo "  2) Restore — extract a backup into ~/.claude on this machine"
+    local ans
+    while :; do
+      printf 'Pick 1 or 2: '
+      IFS= read -r ans || return 1
+      case "${ans}" in
+        1) mode="backup";  break ;;
+        2) mode="restore"; break ;;
+      esac
+    done
+  fi
+
+  if [ "${mode}" = "backup" ]; then
+    wizard_backup
+  elif [ "${#tarballs[@]}" -gt 0 ]; then
+    wizard_restore "${tarballs[@]}"
+  else
+    wizard_restore
+  fi
+}
+
+wizard_backup() {
+  echo
+  echo "=== Step 1/2: Backup (THIS laptop) ==="
+  echo "Bundles ~/.claude state (CLAUDE.md, guidance, skills, hooks, plugin"
+  echo "data, projects, sessions, prompt history) into a tar.gz + .sha256."
+  local encrypt=0
+  if prompt_yes_no "Encrypt the bundle? Recommended; transcripts can hold secrets." y; then
+    encrypt=1
+  fi
+  if [ "${encrypt}" -eq 1 ]; then
+    prompt_enter "Press Enter to run the backup (gpg will prompt for a passphrase)."
+    cmd_backup --encrypt
+  else
+    prompt_enter "Press Enter to run the backup."
+    cmd_backup
+  fi
+  echo
+
+  echo
+  echo "=== Step 2/2: Transfer (optional) ==="
+  echo "If this is for a laptop switch, copy BOTH files (tarball + .sha256)"
+  echo "to the new machine, then on that machine:"
+  echo "  1. Make sure the mac-setup clone is in place (run the fresh-Mac"
+  echo "     bootstrap first if it is a new laptop)."
+  echo "  2. From the clone:"
+  echo "       ./mac-setup.sh migrate-claude-code wizard"
+  echo "     The wizard there will detect the tarball and pick restore."
+  echo
+  echo "For a local backup you can stop here; the files are in \$HOME."
+  echo "This source-side wizard is done."
+}
+
+wizard_restore() {
+  local tarball=""
+
+  if [ "$#" -eq 1 ]; then
+    tarball="$1"
+    echo "Using tarball: ${tarball}"
+    if ! prompt_yes_no "Use this one?" y; then
+      tarball=""
+    fi
+  elif [ "$#" -gt 1 ]; then
+    local -a opts=("$@")
+    echo "Multiple candidate tarballs:"
+    local i=1 c
+    for c in "${opts[@]}"; do
+      printf '  %d) %s\n' "${i}" "${c}"
+      i=$((i+1))
+    done
+    if [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+      tarball="${opts[0]}"
+      echo "unattended mode: auto-picking the first candidate (${tarball})"
+    else
+      local n
+      while :; do
+        printf 'Pick [1-%d]: ' "${#opts[@]}"
+        IFS= read -r n || return 1
+        case "${n}" in
+          ''|*[!0-9]*) continue ;;
+        esac
+        if [ "${n}" -ge 1 ] && [ "${n}" -le "${#opts[@]}" ]; then
+          tarball="${opts[$((n-1))]}"
+          break
+        fi
+      done
+    fi
+  fi
+
+  while [ -z "${tarball}" ] || [ ! -f "${tarball}" ]; do
+    if [ "${MIGRATE_WIZARD_YES:-0}" = "1" ]; then
+      echo "error: no backup tarball found and MIGRATE_WIZARD_YES is set; pass the path interactively or place the tarball under \$HOME" >&2
+      return 1
+    fi
+    printf 'Path to the backup tarball: '
+    IFS= read -r tarball || return 1
+    # Keep the tilde quoted so it stays literal in the case pattern (we
+    # want to match a user-typed ~, not do tilde expansion in the pattern).
+    # shellcheck disable=SC2088
+    case "${tarball}" in
+      "~/"*) tarball="${HOME}/${tarball#~/}" ;;
+    esac
+  done
+
+  echo
+  echo "=== Step 1/3: Restore dry-run ==="
+  echo "Verifies the SHA256 and extracts to a temp dir. ~/.claude is untouched."
+  prompt_enter "Press Enter to run the dry-run."
+  cmd_restore --dry-run "${tarball}"
+  echo
+  if ! prompt_yes_no "Dry-run looks right? Continue to the real restore?" y; then
+    echo "Aborted. Rerun 'migrate-claude-code wizard' any time."
+    return 0
+  fi
+
+  echo
+  echo "=== Step 2/3: Restore ==="
+  echo "Any existing ~/.claude/ is first copied to ~/.claude.backup-YYYYMMDD-HHMMSS/."
+  prompt_enter "Press Enter to restore for real."
+  cmd_restore "${tarball}"
+  echo
+
+  echo
+  echo "=== Step 3/3: Post-restore ==="
+  echo "The tarball is in place. One or two things left:"
+  echo "  - Run \`claude\` once so plugins resync from marketplaces (needs net)."
+  echo "  - Re-authenticate any MCP integrations when first used (listed by"
+  echo "    'migrate-claude-code verify')."
+  echo "  - Confirm with /plugin inside Claude Code that all enabled plugins"
+  echo "    show installed."
+}
+
 case "${1:-}" in
+  wizard)           shift; cmd_wizard "$@" ;;
   backup|export)    shift; cmd_backup "$@" ;;
   restore|install)  shift; cmd_restore "$@" ;;
   verify)           shift; cmd_verify "$@" ;;
