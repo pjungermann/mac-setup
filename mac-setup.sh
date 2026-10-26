@@ -15,8 +15,11 @@
 #   chmod +x mac-setup.sh
 #   ./mac-setup.sh
 # triggers the Xcode Command Line Tools install (git ships with CLT),
-# then git-clones the repo and re-execs from the clone. Reruns of the
-# bootstrap `git pull --ff-only` the existing clone.
+# then git-clones the repo and re-execs from the clone. Reruns from
+# inside the clone also `git pull --ff-only` so a direct
+# `./mac-setup.sh …` picks up upstream fixes without re-downloading
+# the bootstrap. MAC_SETUP_SKIP_PULL=1 bypasses the clone-side pull for
+# local-dev iteration against unpushed edits.
 
 set -euo pipefail
 
@@ -111,6 +114,36 @@ fi
 
 cmd="$1"
 shift
+
+# 0b. Keep the clone fresh on rerun. The self-bootstrap above only pulls
+# when invoked as the downloaded single file (no sibling bin/); reruns
+# from inside the clone used to be stale, so a bug fix landing in main
+# did not reach the user until they re-downloaded the bootstrap. Pull
+# here so `./mac-setup.sh …` inside the clone also picks it up. Re-exec
+# only when the pull actually advanced HEAD, to avoid a loop and to
+# guarantee any change to mac-setup.sh itself takes effect this run.
+# Skip when dispatching to --help (nothing to update for a usage print)
+# and when MAC_SETUP_SKIP_PULL=1 for local-dev iteration against
+# unpushed edits.
+if [[ -d "$SCRIPT_DIR/.git" ]] \
+   && [[ "${MAC_SETUP_SKIP_PULL:-0}" != "1" ]] \
+   && [[ "$cmd" != "-h" ]] && [[ "$cmd" != "--help" ]] && [[ "$cmd" != "help" ]]; then
+    pre_sha=$(git -C "$SCRIPT_DIR" rev-parse HEAD)
+    echo
+    echo "=== Updating mac-setup clone at $SCRIPT_DIR ==="
+    if ! git -C "$SCRIPT_DIR" pull --ff-only; then
+        echo "error: 'git pull --ff-only' failed in $SCRIPT_DIR" >&2
+        echo "       you likely have local changes, uncommitted files, or" >&2
+        echo "       a non-ff history. resolve in $SCRIPT_DIR and re-run," >&2
+        echo "       or set MAC_SETUP_SKIP_PULL=1 to skip this check." >&2
+        exit 1
+    fi
+    post_sha=$(git -C "$SCRIPT_DIR" rev-parse HEAD)
+    if [[ "$pre_sha" != "$post_sha" ]]; then
+        echo "Clone advanced ${pre_sha:0:7} -> ${post_sha:0:7}; re-executing with latest scripts."
+        exec "$SCRIPT_DIR/mac-setup.sh" "$cmd" "$@"
+    fi
+fi
 
 case "$cmd" in
     install-software|migrate-laptop|migrate-claude-code)
