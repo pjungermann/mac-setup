@@ -93,9 +93,10 @@ if [[ "$prereq_notes_shown" -eq 0 ]] && [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; the
     "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
 fi
 
-# 4b. If we bootstrapped from a tarball, convert the dir to a git clone now
-# that git exists (installed by step 4). Reruns can then
-# `cd $SCRIPT_DIR && git pull`.
+# 4b. Safety net for a $SCRIPT_DIR that is not a git clone: the normal
+# bootstrap in mac-setup.sh clones directly, so this only fires if the
+# repo was manually extracted (zip, tarball, etc). Converts the dir to
+# a real clone so reruns can `cd $SCRIPT_DIR && git pull`.
 if [[ ! -d "$SCRIPT_DIR/.git" ]]; then
     section "Converting bootstrapped dir to git clone"
     (

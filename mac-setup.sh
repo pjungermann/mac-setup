@@ -10,11 +10,13 @@
 #   ./mac-setup.sh migrate-claude-code <args>   # bin/migrate-claude-code.sh
 #   ./mac-setup.sh --help
 #
-# Fresh-Mac bootstrap (no git required yet):
+# Fresh-Mac bootstrap:
 #   curl -fsSL https://raw.githubusercontent.com/pjungermann/mac-setup/main/mac-setup.sh -o mac-setup.sh
 #   chmod +x mac-setup.sh
 #   ./mac-setup.sh
-# fetches the full repo as a tarball and re-execs from there.
+# triggers the Xcode Command Line Tools install (git ships with CLT),
+# then git-clones the repo and re-execs from the clone. Reruns of the
+# bootstrap `git pull --ff-only` the existing clone.
 
 set -euo pipefail
 
@@ -43,17 +45,61 @@ Fresh-Mac bootstrap:
 EOF
 }
 
-# 0. Self-bootstrap when invoked as a single-file download. Fetches the
-# full repo as a tarball (no git required yet) and re-execs from there.
-# Later, after `brew bundle` installs git, install-software converts the
-# dest into a real git clone so subsequent runs can `git pull`.
+# 0. Self-bootstrap when invoked as a single-file download. Clones the
+# repo (fresh install) or pulls an existing clone (rerun), then re-execs
+# from the clone so the dispatcher below sees a sibling bin/ dir.
+#
+# git ships with Xcode Command Line Tools, which aren't installed on a
+# bare Mac. `xcode-select --install` triggers the dialog and we wait on
+# it before `git clone`. install-software step 1 still has its own CLT
+# gate for direct `bin/install-software.sh` invocations and as a cheap
+# safeguard.
 if [[ ! -d "$SCRIPT_DIR/bin" ]]; then
     dest="${MAC_SETUP_DIR:-$HOME/mac-setup}"
     echo
     echo "=== Bootstrapping full repo to $dest ==="
-    mkdir -p "$dest"
-    curl -fsSL "https://github.com/pjungermann/mac-setup/archive/refs/heads/main.tar.gz" \
-        | tar xz --strip-components=1 -C "$dest"
+
+    if ! xcode-select -p >/dev/null 2>&1; then
+        echo "Xcode Command Line Tools are needed for 'git clone'."
+        echo "Triggering the install dialog."
+        xcode-select --install 2>/dev/null || true
+        # The until loop reads from the TTY; the documented bootstrap
+        # pipes through a saved file, not `curl | bash`, so stdin is a
+        # terminal here. Keep it that way.
+        until xcode-select -p >/dev/null 2>&1; do
+            read -rsn1 -p "Press any key once the Xcode CLT install completes. "
+            echo
+        done
+    fi
+
+    # Belt-and-suspenders: xcode-select -p can succeed even when the
+    # pointer dangles at a deleted Xcode.app, in which case `git` is
+    # still missing. Fail loudly with a clear message instead of a
+    # cryptic "command not found" from `git clone`.
+    if ! command -v git >/dev/null 2>&1; then
+        echo "error: git not on PATH after CLT check" >&2
+        echo "       run 'xcode-select -p' to see where it points, and" >&2
+        echo "       'sudo xcode-select -r' to reset if the path dangles" >&2
+        exit 1
+    fi
+
+    if [[ -d "$dest/.git" ]]; then
+        echo "Updating existing clone at $dest"
+        if ! git -C "$dest" pull --ff-only; then
+            echo "error: 'git pull --ff-only' failed in $dest" >&2
+            echo "       you likely have local changes, uncommitted files, or" >&2
+            echo "       a non-ff history. resolve in $dest and re-run." >&2
+            exit 1
+        fi
+    elif [[ -e "$dest" ]] && [[ -n "$(ls -A "$dest" 2>/dev/null)" ]]; then
+        echo "error: $dest exists and is not empty, but is not a git clone" >&2
+        echo "       move or remove it, then re-run this bootstrap" >&2
+        exit 1
+    else
+        # `git clone <url> <path>` accepts an existing empty directory.
+        git clone https://github.com/pjungermann/mac-setup.git "$dest"
+    fi
+
     exec "$dest/mac-setup.sh" "$@"
 fi
 

@@ -14,9 +14,10 @@ chmod +x mac-setup.sh
 ./mac-setup.sh
 ```
 
-The script fetches the full repo as a tarball (no git required yet),
-re-execs from `~/mac-setup/`, then after Homebrew installs git it
-converts that directory into a real clone so later reruns are just:
+The script triggers the Xcode Command Line Tools install (git ships
+with CLT), then git-clones the repo to `~/mac-setup/` and re-execs
+from there. Reruns of the bootstrap pull the existing clone with
+`git pull --ff-only`. The explicit form is:
 
 ```sh
 cd ~/mac-setup && git pull && ./mac-setup.sh
@@ -49,7 +50,7 @@ In order:
 2. Homebrew, via the official installer, with `shellenv` wired into `~/.zprofile`.
 3. **Pre-install notes.** `bin/notes.sh --phase prereq` surfaces anything you must prepare up front (keys, profiles, SSO).
 4. Homebrew packages. `bin/brew-bundle.sh` runs `brew bundle` on the tracked `Brewfile` plus optional `Brewfile.local`, skipping any cask whose `.app` is already present but not brew-managed (handles MDM-pushed apps transparently).
-5. Repo-as-clone. The bootstrapped `~/mac-setup/` becomes a real git clone of this repo now that git exists.
+5. Repo-as-clone. The normal bootstrap already produces a git clone; this step is a safety net for anyone running `install-software` from a manually-extracted tarball (no `.git/`) and makes that directory into one.
 6. chezmoi applies dotfiles (`dot_zshrc.tmpl`, `dot_gitconfig.tmpl`, `dot_config/mise/config.toml`) from this repo as the chezmoi source. A `run_once_before_` script installs Oh My Zsh first.
 7. Default shell. `chsh -s /bin/zsh` runs if your login shell isn't already zsh.
 8. mise runtimes. `mise install` picks up `~/.config/mise/config.toml`.
