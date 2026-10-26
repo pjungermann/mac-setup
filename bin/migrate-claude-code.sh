@@ -591,9 +591,10 @@ cmd_verify() {
       done
     fi
     echo "Summary:"
-    echo "  enabled plugins declared in settings.json : ${plugin_count}"
-    echo "  project dirs under ${projects_dir}         : ${project_count}"
-    echo "  total memory files across projects         : ${memory_count}"
+    printf "  %-41s : %s\n" "projects dir scanned"                      "${projects_dir}"
+    printf "  %-41s : %s\n" "enabled plugins declared in settings.json" "${plugin_count}"
+    printf "  %-41s : %s\n" "project dirs under projects/"              "${project_count}"
+    printf "  %-41s : %s\n" "total memory files across projects"        "${memory_count}"
     echo
     echo "MCP integrations found in enabled plugins (tokens were not transferred;"
     echo "re-auth on first use via the plugin's own authenticate flow):"
