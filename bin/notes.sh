@@ -63,7 +63,47 @@ else
     RED="" YELLOW="" BOLD="" RESET=""
 fi
 
-entries=$(yq -o=json "[.notes[] | select(.phase == \"$phase\")]" "$NOTES_YAML")
+# Build the set of installer-declared identifiers so a note with a
+# `requires:` list only prints when every id in that list is actually
+# declared somewhere we install from. Covers Brewfile + Brewfile.local
+# brew/cask/mas lines (the mas id lives after the comma; the name in
+# quotes is what matches). Entries without `requires` are always shown
+# (OS-provided tools like ssh, tool extensions like gh-copilot, etc.).
+installed_json='[]'
+if command -v grep >/dev/null 2>&1; then
+    installed_lines=$(
+        {
+            grep -hE '^[[:space:]]*(brew|cask|mas)[[:space:]]+"' \
+                "$REPO_ROOT/Brewfile" "$REPO_ROOT/Brewfile.local" 2>/dev/null \
+                || true
+        } | sed -E 's/^[[:space:]]*(brew|cask|mas)[[:space:]]+"([^"]+)".*/\2/'
+    )
+    if [[ -n "$installed_lines" ]]; then
+        installed_json=$(printf '%s\n' "$installed_lines" | jq -R . | jq -sc .)
+    fi
+fi
+
+# Phase filter -> requires filter -> sort by severity rank then app.
+# Rank: required (0) above interactive (1) above optional (2); unknown
+# severities drop to the bottom.
+entries=$(
+    yq -o=json "[.notes[] | select(.phase == \"$phase\")]" "$NOTES_YAML" \
+        | jq --argjson installed "$installed_json" '
+            def rank(s):
+                if s == "required" then 0
+                elif s == "interactive" then 1
+                elif s == "optional" then 2
+                else 3
+                end;
+            map(
+                select(
+                    (.requires // null) == null
+                    or (.requires | all(. as $r | $installed | index($r) != null))
+                )
+            )
+            | sort_by(rank(.severity), .app)
+        '
+)
 count=$(jq 'length' <<<"$entries")
 
 if (( summary )); then
