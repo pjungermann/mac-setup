@@ -11,6 +11,19 @@
 #   interactive yellow  — the app will prompt you on launch, just plan for it
 
 notes:
+  - app: mas
+    phase: prereq
+    severity: required
+    message: |
+      Sign in to the Mac App Store (System Settings > Apple Account, or
+      App Store > sign in) BEFORE this script reaches the Brewfile. If the
+      Mac is not signed in, mas may trigger a system login prompt whose
+      window can appear off-screen on a fresh install, with no visible
+      way to move it. Recovery if it happens:
+        1. `killall storeagent` or `kill -9 $(pgrep storeagent)`
+        2. Open App Store.app directly and sign in there
+        3. Re-run this script
+
   - app: gnupg
     phase: post
     severity: required
