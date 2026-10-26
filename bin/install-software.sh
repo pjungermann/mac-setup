@@ -31,17 +31,38 @@ else
 fi
 
 # 2. Homebrew
+# Rerun from a shell that hasn't sourced ~/.zprofile yet (common right
+# after a fresh install) sees no `brew` on PATH, so a plain `command -v`
+# gate would send us back through the installer. Check the known install
+# roots and source shellenv from there so a rerun recognises an existing
+# Homebrew. `/opt/homebrew` is Apple Silicon's default, `/usr/local` is
+# Intel's.
 section "Homebrew"
-if command -v brew >/dev/null 2>&1; then
-    brew update
-else
-    bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    # shellcheck disable=SC2016 # intentional: literal written to .zprofile
-    brew_shellenv='eval "$(/opt/homebrew/bin/brew shellenv)"'
-    if ! grep -qF "$brew_shellenv" "$HOME/.zprofile" 2>/dev/null; then
-        echo "$brew_shellenv" >> "$HOME/.zprofile"
+if ! command -v brew >/dev/null 2>&1; then
+    if [[ -x /opt/homebrew/bin/brew ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [[ -x /usr/local/bin/brew ]]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    else
+        bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        # shellcheck disable=SC2016 # intentional: literal written to .zprofile
+        brew_shellenv='eval "$(/opt/homebrew/bin/brew shellenv)"'
+        if ! grep -qF "$brew_shellenv" "$HOME/.zprofile" 2>/dev/null; then
+            echo "$brew_shellenv" >> "$HOME/.zprofile"
+        fi
+        eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+brew update
+
+# Disable Homebrew analytics on every run. Idempotent; brew writes the
+# flag to its own config and reruns are no-ops. Re-asserted every time
+# so a drift (someone running `brew analytics on` later) stays corrected.
+# Guarded in case brew is somehow still off PATH; `|| true` keeps the
+# strict-mode script from exiting on a missing-brew edge case.
+if command -v brew >/dev/null 2>&1; then
+    brew analytics off >/dev/null || true
+    echo "Homebrew analytics disabled."
 fi
 
 # 3. Pre-install notes. Flag anything the user needs to prepare before
