@@ -13,13 +13,14 @@
 notes:
   - app: mas
     phase: prereq
-    severity: required
+    severity: optional
     message: |
-      Sign in to the Mac App Store (System Settings > Apple Account, or
-      App Store > sign in) BEFORE this script reaches the Brewfile. If the
-      Mac is not signed in, mas may trigger a system login prompt whose
-      window can appear off-screen on a fresh install, with no visible
-      way to move it. Recovery if it happens:
+      Signing in to the Mac App Store (System Settings > Apple Account,
+      or App Store > sign in) before the Brewfile runs avoids a
+      mid-install interruption. If you skip this, mas will trigger a
+      system login prompt when the first `mas "..."` entry runs; on
+      fresh installs that prompt has been seen appearing off-screen,
+      with no visible way to move it. Recovery if it happens:
         1. `killall storeagent` or `kill -9 $(pgrep storeagent)`
         2. Open App Store.app directly and sign in there
         3. Re-run this script

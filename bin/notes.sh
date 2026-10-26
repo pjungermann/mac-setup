@@ -63,7 +63,13 @@ else
     RED="" YELLOW="" BOLD="" RESET=""
 fi
 
-count=0
+entries=$(yq -o=json "[.notes[] | select(.phase == \"$phase\")]" "$NOTES_YAML")
+count=$(jq 'length' <<<"$entries")
+
+if (( summary )); then
+    printf "%s%d note(s) for phase=%s%s\n\n" "$BOLD" "$count" "$phase" "$RESET"
+fi
+
 while IFS= read -r entry; do
     [[ -z "$entry" ]] && continue
     app=$(jq -r '.app' <<<"$entry")
@@ -78,9 +84,4 @@ while IFS= read -r entry; do
 
     printf "%s%s[%s] %s%s\n" "$color" "$BOLD" "$severity" "$app" "$RESET"
     printf "%s\n\n" "$message"
-    count=$((count + 1))
-done < <(yq -o=json "[.notes[] | select(.phase == \"$phase\")]" "$NOTES_YAML" | jq -c '.[]')
-
-if (( summary )); then
-    printf "%s%d note(s) for phase=%s%s\n" "$BOLD" "$count" "$phase" "$RESET"
-fi
+done < <(jq -c '.[]' <<<"$entries")
