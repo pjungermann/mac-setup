@@ -209,6 +209,18 @@ require_gpg() {
     echo "error: this operation needs 'gpg' on PATH (macOS: 'brew install gnupg')" >&2
     return 1
   fi
+  # pinentry needs to know the controlling TTY to prompt for a passphrase.
+  # Without GPG_TTY, the gpg child inside `tar | gpg -c > outfile` sees a
+  # pipe on its own stdin and fails with "Inappropriate ioctl for device"
+  # ("gpg: problem with the agent"). Capture the current TTY now, before
+  # any pipeline, so the child inherits it. Noop in a non-interactive run
+  # (no TTY, nothing to set; gpg will still error, but at the right place).
+  if [ -z "${GPG_TTY:-}" ]; then
+    local t
+    if t="$(tty 2>/dev/null)" && [ -n "${t}" ]; then
+      export GPG_TTY="${t}"
+    fi
+  fi
 }
 
 extract_tarball() {
