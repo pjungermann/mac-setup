@@ -1,19 +1,30 @@
 # Per-app pre/post-install notes surfaced by bin/notes.sh.
 # Schema per entry:
-#   app:        matches brew formula/cask name, mas app name, or any identifier
+#   app:        display name, matches brew formula/cask name, mas app name,
+#               or any identifier the maintainer finds readable
 #   phase:      prereq | post
 #   severity:   required | optional | interactive
+#   requires:   (optional) list of brew/cask/mas identifiers (as they appear
+#               in Brewfile / Brewfile.local) that must all be declared for
+#               the note to show. Omit to always show (OS-provided tools
+#               like ssh, tool extensions like gh-copilot, etc.).
 #   message:    multiline string shown to the user
 #
 # Severity colors in bin/notes.sh:
 #   required    red     — must act, else the app is inert or broken
 #   optional    yellow  — worth considering, not blocking
 #   interactive yellow  — the app will prompt you on launch, just plan for it
+#
+# Ordering: bin/notes.sh sorts the output by severity (required ->
+# interactive -> optional) and then alphabetically by app. Order in this
+# file is kept logical for maintenance; the user-visible order is produced
+# at render time.
 
 notes:
   - app: mas
     phase: prereq
     severity: optional
+    requires: [mas]
     message: |
       Signing in to the Mac App Store (System Settings > Apple Account,
       or App Store > sign in) before the Brewfile runs avoids a
@@ -28,6 +39,7 @@ notes:
   - app: gnupg
     phase: post
     severity: required
+    requires: [gnupg]
     message: |
       For signed commits, restore ~/.gnupg from your previous machine over an
       encrypted channel (USB with FileVault, or scp direct).
@@ -36,6 +48,7 @@ notes:
   - app: aws-cli
     phase: post
     severity: required
+    requires: [awscli]
     message: |
       Configure AWS access either by restoring ~/.aws/ (SSO config, credentials)
       from the previous machine, or by running `aws configure sso` fresh.
@@ -43,6 +56,7 @@ notes:
   - app: aws-vpn-client
     phase: post
     severity: required
+    requires: [aws-vpn-client]
     message: |
       AWS VPN Client needs a .ovpn-style profile from your platform team.
       - If migrating: restore ~/Library/Application Support/AWSVPNClient/ from
@@ -54,6 +68,7 @@ notes:
   - app: 1password
     phase: post
     severity: interactive
+    requires: ["1password"]
     message: |
       Sign in via "Sign in with SSO" on the welcome screen. Avoid the
       email+password path for company tenants.
@@ -61,6 +76,7 @@ notes:
   - app: jetbrains-toolbox
     phase: post
     severity: interactive
+    requires: [jetbrains-toolbox]
     message: |
       Launch Toolbox and sign into your JetBrains Account. Install IDEs
       (IntelliJ IDEA, PyCharm, etc.) manually through the Toolbox UI.
@@ -69,6 +85,7 @@ notes:
   - app: claude
     phase: post
     severity: required
+    requires: [claude]
     message: |
       Run your separate Claude Code backup/restore script to populate
       ~/.claude/ (CLAUDE.md, guidance, memory, settings).
@@ -84,6 +101,7 @@ notes:
   - app: gh
     phase: post
     severity: required
+    requires: [gh]
     message: |
       Authenticate the GitHub CLI so the gitconfig credential helper
       (!/opt/homebrew/bin/gh auth git-credential) works for HTTPS clones
@@ -96,6 +114,7 @@ notes:
   - app: gh-copilot
     phase: post
     severity: optional
+    requires: [gh]
     message: |
       If you use GitHub Copilot in the terminal, install the extension and
       authenticate:
@@ -106,6 +125,7 @@ notes:
   - app: sops
     phase: post
     severity: required
+    requires: [sops]
     message: |
       Restore ~/.sops.yaml from your previous machine (or your password
       manager) so sops-encrypted files decrypt against the right KMS keys.
