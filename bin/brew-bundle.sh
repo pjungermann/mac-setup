@@ -41,7 +41,9 @@ if [[ -f "$BREWFILE_LOCAL" ]]; then
 fi
 
 # Collect all casks referenced in the combined file for a single lookup.
-all_casks=$(grep -oE '^[[:space:]]*cask[[:space:]]+"[^"]+"' "$combined" \
+# `|| true` on the grep so pipefail doesn't abort the script when the
+# Brewfile declares no casks (grep exit 1 would propagate otherwise).
+all_casks=$({ grep -oE '^[[:space:]]*cask[[:space:]]+"[^"]+"' "$combined" || true; } \
     | sed -E 's/^[[:space:]]*cask[[:space:]]+"//; s/"$//' \
     | sort -u)
 
@@ -93,6 +95,28 @@ done < "$combined"
 
 if (( skipped > 0 )); then
     echo "brew-bundle: filtered $skipped line(s); invoking brew bundle" >&2
+fi
+
+# Pre-trust any third-party taps declared in the Brewfile(s). Recent
+# Homebrew (4.6+) prompts for trust on first install from a non-core
+# tap; `brew bundle` has no interactive hook for that prompt and stalls
+# on "Installing <tap>/<formula>". Install step 2 runs `brew update` on
+# every invocation, so by the time this wrapper runs we're always on a
+# brew that ships `brew trust` and no version gating is needed.
+# `brew trust` is itself idempotent and prints nothing on success, so
+# we echo per tap to make the privilege change visible in the output.
+# `|| true` on the grep so pipefail doesn't abort when there are no
+# tap lines. Only double-quoted `tap "..."` is matched; single-quoted
+# Ruby syntax is not the convention in Brewfiles.
+taps=$({ grep -oE '^[[:space:]]*tap[[:space:]]+"[^"]+"' "$combined" || true; } \
+    | sed -E 's/^[[:space:]]*tap[[:space:]]+"//; s/"$//' \
+    | sort -u)
+if [[ -n "$taps" ]]; then
+    while IFS= read -r tap; do
+        [[ -z "$tap" ]] && continue
+        echo "brew-bundle: trusting tap $tap" >&2
+        brew trust "$tap"
+    done <<<"$taps"
 fi
 
 exec brew bundle --file="$filtered" "$@"
