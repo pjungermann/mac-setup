@@ -109,16 +109,21 @@ KNOWN_EXCLUDE_CLAUDE=(
   ".env" ".last-cleanup" ".last-update-result.json"
   "backups" "cache" "daemon" "daemon-auth-cooldown" "daemon-auth-status.json"
   "daemon.lock" "daemon.log" "daemon.status.json"
-  "debug" "downloads" "file-history" "jobs" "paste-cache"
-  "policy-limits.json" "policy-limits.json.stamp.json"
-  "remote-settings.json" "security" "session-env" "shell-snapshots"
-  "stats-cache.json" "tasks" "telemetry"
+  "debug" "downloads" "file-history" "jobs" "mcp-needs-auth-cache.json"
+  "paste-cache"
+  "policy-limits.json" "policy-limits.json.signature-iat.json"
+  "policy-limits.json.signature.json" "policy-limits.json.stamp.json"
+  "remote-settings.json" "remote-settings.json.signature-iat.json"
+  "remote-settings.json.signature.json" "remote-settings.json.synced-at"
+  "security" "session-env" "shell-snapshots"
+  "state" "stats-cache.json" "tasks" "telemetry"
 )
 KNOWN_INCLUDE_PLUGINS=( "data" "blocklist.json" )
 KNOWN_EXCLUDE_PLUGINS=(
   ".last_inuse_sweep"
   "marketplaces" "cache" "store" "synced"
-  "installed_plugins.json" "known_marketplaces.json" "plugin-catalog-cache.json"
+  "installed_plugins.json" "known_marketplaces.json"
+  "plugin-catalog-cache.json" "plugin-directory-cache-v2.json"
 )
 KNOWN_EXCLUDE_PREFIXES=( "security_warnings_state_" )
 
