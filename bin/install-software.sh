@@ -45,15 +45,32 @@ else
 fi
 
 # 3. Pre-install notes. Flag anything the user needs to prepare before
-# packages install.
+# packages install. On a bare Mac, notes.sh needs yq/jq to parse the
+# YAML and those come from Homebrew in step 4, so remember whether this
+# first call was a real print or a silent skip; we re-run it after the
+# bundle so the notes are not lost on a fresh install.
 section "Pre-install notes"
+prereq_notes_shown=0
 if [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; then
-    "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
+    if command -v yq >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+        "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
+        prereq_notes_shown=1
+    else
+        echo "yq/jq not installed yet; the pre-install notes will be re-run" >&2
+        echo "after Homebrew installs them." >&2
+    fi
 fi
 
 # 4. Homebrew packages (via wrapper that skips MDM-preinstalled .app casks).
 section "Homebrew packages"
 "$SCRIPT_DIR/bin/brew-bundle.sh"
+
+# 4a. Deferred pre-install notes. If step 3 could not run them (fresh Mac
+# without yq/jq), surface them now that the bundle has landed those tools.
+if [[ "$prereq_notes_shown" -eq 0 ]] && [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; then
+    section "Pre-install notes (deferred from step 3)"
+    "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
+fi
 
 # 4b. If we bootstrapped from a tarball, convert the dir to a git clone now
 # that git exists (installed by step 4). Reruns can then
