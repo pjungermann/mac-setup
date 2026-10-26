@@ -103,6 +103,18 @@ if [[ ! -d "$SCRIPT_DIR/bin" ]]; then
         git clone https://github.com/pjungermann/mac-setup.git "$dest"
     fi
 
+    # Clean up the downloaded single-file bootstrap. We only reach this
+    # branch when SCRIPT_DIR has no sibling bin/, which is only true for
+    # the curl'd stub. The clone's own mac-setup.sh lives at
+    # $dest/mac-setup.sh and is safe. Resolve the stub path through
+    # BASH_SOURCE so we delete the file we were actually invoked as, not
+    # whatever happens to be at $SCRIPT_DIR right now.
+    bootstrap_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/$(basename "${BASH_SOURCE[0]}")"
+    if [[ -f "$bootstrap_path" ]] && [[ "$bootstrap_path" != "$dest/mac-setup.sh" ]]; then
+        rm -f "$bootstrap_path" \
+            && echo "Removed bootstrap stub at $bootstrap_path (clone at $dest is the source of truth now)."
+    fi
+
     exec "$dest/mac-setup.sh" "$@"
 fi
 
