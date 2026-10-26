@@ -97,20 +97,36 @@ if (( skipped > 0 )); then
     echo "brew-bundle: filtered $skipped line(s); invoking brew bundle" >&2
 fi
 
-# Pre-trust any third-party taps declared in the Brewfile(s). Recent
+# Pre-trust any third-party taps the Brewfile(s) reference. Recent
 # Homebrew (4.6+) prompts for trust on first install from a non-core
 # tap; `brew bundle` has no interactive hook for that prompt and stalls
 # on "Installing <tap>/<formula>". Install step 2 runs `brew update` on
 # every invocation, so by the time this wrapper runs we're always on a
-# brew that ships `brew trust` and no version gating is needed.
-# `brew trust` is itself idempotent and prints nothing on success, so
-# we echo per tap to make the privilege change visible in the output.
-# `|| true` on the grep so pipefail doesn't abort when there are no
-# tap lines. Only double-quoted `tap "..."` is matched; single-quoted
-# Ruby syntax is not the convention in Brewfiles.
-taps=$({ grep -oE '^[[:space:]]*tap[[:space:]]+"[^"]+"' "$combined" || true; } \
-    | sed -E 's/^[[:space:]]*tap[[:space:]]+"//; s/"$//' \
-    | sort -u)
+# brew that ships `brew trust`.
+#
+# Taps show up two ways in a Brewfile:
+#   tap  "owner/repo"                          (explicit, with optional URL)
+#   brew "owner/repo/formula"                  (inline tap prefix on brew/cask)
+#   cask "owner/repo/cask-name"
+# Parse the first quoted string on any tap/brew/cask line; if it has
+# a slash, the leading `owner/repo` is a third-party tap name. Any
+# string with three or more segments collapses to its first `owner/repo`
+# pair, which is the only well-formed Homebrew tap shape in practice.
+#
+# `brew trust` writes a trust marker to its config regardless of whether
+# the tap is registered yet; `brew bundle` auto-registers from the
+# Brewfile line, so there's no need to `brew tap` first. One stderr
+# echo per tap keeps the privilege change visible since `brew trust`
+# is silent on success.
+taps=$(awk '
+    /^[[:space:]]*(tap|brew|cask)[[:space:]]+"/ {
+        if (match($0, /"[^"]+"/) == 0) next
+        s = substr($0, RSTART + 1, RLENGTH - 2)
+        n = split(s, parts, "/")
+        if (n == 2)      { print s }
+        else if (n >= 3) { print parts[1] "/" parts[2] }
+    }
+' "$combined" | sort -u)
 if [[ -n "$taps" ]]; then
     while IFS= read -r tap; do
         [[ -z "$tap" ]] && continue
