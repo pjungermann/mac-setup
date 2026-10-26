@@ -80,15 +80,16 @@ if [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; then
     for tool in yq jq; do
         if ! command -v "$tool" >/dev/null 2>&1; then
             echo "Bootstrapping $tool via Homebrew to render pre-install notes." >&2
-            brew install "$tool"
+            brew install "$tool" >/dev/null
             notes_bootstrap_installed+=("$tool")
         fi
     done
-    "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
+    "$SCRIPT_DIR/bin/notes.sh" --phase prereq --summary || true
     if (( ${#notes_bootstrap_installed[@]} )); then
         for tool in "${notes_bootstrap_installed[@]}"; do
             echo "Removing bootstrap-installed $tool so brew bundle is authoritative." >&2
-            brew uninstall "$tool" || echo "  (uninstall failed; $tool left in place)" >&2
+            brew uninstall "$tool" >/dev/null \
+                || echo "  (uninstall failed; $tool left in place)" >&2
         done
     fi
 fi
