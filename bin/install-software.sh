@@ -82,6 +82,37 @@ if [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; then
     fi
 fi
 
+# 3b. Pause for optional Brewfile.local prep. The installer runs end-to-end
+# with no natural stopping point before packages install. Users with
+# private/work-specific brew/cask/tap entries land them in Brewfile.local;
+# on a fresh laptop that's the first chance to add one, and entries that
+# reference SSH-authenticated repos also need SSH keys in place (via a
+# prior migrate-laptop restore). Prompt the user to prepare both before
+# the bundle runs. MAC_SETUP_SKIP_LOCAL_PROMPT=1 bypasses the pause for
+# scripted installs; a non-interactive stdin (no TTY) is also skipped.
+if [[ ! -f "$SCRIPT_DIR/Brewfile.local" ]] \
+   && [[ "${MAC_SETUP_SKIP_LOCAL_PROMPT:-0}" != "1" ]] \
+   && [[ -t 0 ]]; then
+    section "Prepare Brewfile.local (optional)"
+    cat <<EOF
+No Brewfile.local found at ${SCRIPT_DIR}/Brewfile.local.
+
+If you have private or work-specific brew / cask / tap entries to add,
+create that file now (in another terminal), then press Enter to continue.
+
+Entries that reference SSH-authenticated private taps also need your SSH
+keys in place; if you have a laptop-migration tarball, restore it in
+another terminal first:
+
+    ./mac-setup.sh migrate-laptop install <tarball>
+
+Press Enter to continue (no overlay, or with the Brewfile.local you just
+created). Press Ctrl-C to abort. Set MAC_SETUP_SKIP_LOCAL_PROMPT=1 to
+skip this prompt on reruns.
+EOF
+    read -r _ || true
+fi
+
 # 4. Homebrew packages (via wrapper that skips MDM-preinstalled .app casks).
 section "Homebrew packages"
 "$SCRIPT_DIR/bin/brew-bundle.sh"
