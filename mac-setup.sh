@@ -143,13 +143,24 @@ if [[ -d "$SCRIPT_DIR/.git" ]] \
     pre_sha=$(git -C "$SCRIPT_DIR" rev-parse HEAD)
     echo
     echo "=== Updating mac-setup clone at $SCRIPT_DIR ==="
-    if ! git -C "$SCRIPT_DIR" pull --ff-only; then
-        echo "error: 'git pull --ff-only' failed in $SCRIPT_DIR" >&2
-        echo "       you likely have local changes, uncommitted files, or" >&2
-        echo "       a non-ff history. resolve in $SCRIPT_DIR and re-run," >&2
-        echo "       or set MAC_SETUP_SKIP_PULL=1 to skip this check." >&2
-        exit 1
+    pull_log=$(mktemp)
+    if ! git -C "$SCRIPT_DIR" pull --ff-only 2>"$pull_log"; then
+        if grep -qE 'Could not resolve host|Could not connect|Operation timed out|unable to access|Connection refused|network is unreachable' "$pull_log"; then
+            # Network trouble is not a reason to halt the whole install;
+            # a stale clone is still useful. Warn, keep going.
+            echo "warn: 'git pull --ff-only' could not reach the remote in $SCRIPT_DIR; continuing with the current clone revision." >&2
+            sed -n '1,5p' "$pull_log" | sed 's/^/      /' >&2
+        else
+            echo "error: 'git pull --ff-only' failed in $SCRIPT_DIR" >&2
+            echo "       you likely have local changes, uncommitted files, or" >&2
+            echo "       a non-ff history. resolve in $SCRIPT_DIR and re-run," >&2
+            echo "       or set MAC_SETUP_SKIP_PULL=1 to skip this check." >&2
+            cat "$pull_log" >&2
+            rm -f "$pull_log"
+            exit 1
+        fi
     fi
+    rm -f "$pull_log"
     post_sha=$(git -C "$SCRIPT_DIR" rev-parse HEAD)
     if [[ "$pre_sha" != "$post_sha" ]]; then
         echo "Clone advanced ${pre_sha:0:7} -> ${post_sha:0:7}; re-executing with latest scripts."
