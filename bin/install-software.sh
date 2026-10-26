@@ -65,20 +65,31 @@ if command -v brew >/dev/null 2>&1; then
     echo "Homebrew analytics disabled."
 fi
 
-# 3. Pre-install notes. Flag anything the user needs to prepare before
-# packages install. On a bare Mac, notes.sh needs yq/jq to parse the
-# YAML and those come from Homebrew in step 4, so remember whether this
-# first call was a real print or a silent skip; we re-run it after the
-# bundle so the notes are not lost on a fresh install.
+# 3. Pre-install notes. notes.sh needs yq and jq to parse config/notes.yaml.
+# On a fresh Mac neither tool exists yet: both live in dot_config/mise/
+# config.toml, not the Brewfile, so they only land in step 7 (`mise install`)
+# which runs after the bundle. Eager-install any missing one via Homebrew
+# just long enough to render the notes, then uninstall what this run put
+# down so brew bundle (step 4) is the authoritative installer. If the
+# Brewfile declares yq or jq, the bundle reinstalls it; mise owns the
+# lasting install on step 7 otherwise. The `(( ))` guard around the
+# cleanup loop sidesteps Bash 3.2's "unbound array" under set -u.
 section "Pre-install notes"
-prereq_notes_shown=0
+notes_bootstrap_installed=()
 if [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; then
-    if command -v yq >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
-        "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
-        prereq_notes_shown=1
-    else
-        echo "yq/jq not installed yet; the pre-install notes will be re-run" >&2
-        echo "after Homebrew installs them." >&2
+    for tool in yq jq; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            echo "Bootstrapping $tool via Homebrew to render pre-install notes." >&2
+            brew install "$tool"
+            notes_bootstrap_installed+=("$tool")
+        fi
+    done
+    "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
+    if (( ${#notes_bootstrap_installed[@]} )); then
+        for tool in "${notes_bootstrap_installed[@]}"; do
+            echo "Removing bootstrap-installed $tool so brew bundle is authoritative." >&2
+            brew uninstall "$tool" || echo "  (uninstall failed; $tool left in place)" >&2
+        done
     fi
 fi
 
@@ -117,14 +128,7 @@ fi
 section "Homebrew packages"
 "$SCRIPT_DIR/bin/brew-bundle.sh"
 
-# 4a. Deferred pre-install notes. If step 3 could not run them (fresh Mac
-# without yq/jq), surface them now that the bundle has landed those tools.
-if [[ "$prereq_notes_shown" -eq 0 ]] && [[ -x "$SCRIPT_DIR/bin/notes.sh" ]]; then
-    section "Pre-install notes (deferred from step 3)"
-    "$SCRIPT_DIR/bin/notes.sh" --phase prereq || true
-fi
-
-# 4b. Safety net for a $SCRIPT_DIR that is not a git clone: the normal
+# 4a. Safety net for a $SCRIPT_DIR that is not a git clone: the normal
 # bootstrap in mac-setup.sh clones directly, so this only fires if the
 # repo was manually extracted (zip, tarball, etc). Converts the dir to
 # a real clone so reruns can `cd $SCRIPT_DIR && git pull`.
