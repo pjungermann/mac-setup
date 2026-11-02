@@ -1,3 +1,6 @@
+[settings]
+node.corepack = true
+
 [tool_alias]
 abtop = "cargo:abtop"
 claudectl = "cargo:claudectl"

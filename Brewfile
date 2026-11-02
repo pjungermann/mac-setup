@@ -26,7 +26,6 @@ brew "postgresql"
 # Dev / build
 brew "bfg"
 brew "cfn-lint"
-brew "corepack"
 brew "gcc"
 brew "gh"
 brew "git"
