@@ -160,10 +160,10 @@ fi
 section "mise runtimes"
 mise install
 
-# 8. Yarn via Corepack (Node ships with Corepack; per-project pinning via
-# packageManager).
+# 8. Yarn via Corepack. mise enables Corepack itself (settings.node.corepack);
+# this step only prepopulates a global Yarn so first use doesn't block on a
+# download. Per-project pinning still happens via packageManager.
 section "Yarn via Corepack"
-corepack enable
 corepack install -g yarn@stable
 
 # 9. Claude Code CLI. Not in Homebrew; installed via Anthropic's official
