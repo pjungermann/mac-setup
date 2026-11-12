@@ -7,7 +7,7 @@ claudectl = "cargo:claudectl"
 
 [tools]
 abtop = "0.2.3"
-checkov = "3.4.4"
+checkov = "3.4.5"
 claudectl = "0.32.0"
 go = "1.27.4"
 gradle = "9.9.1"
